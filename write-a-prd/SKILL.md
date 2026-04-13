@@ -25,7 +25,7 @@ If the user hasn't provided a plan name, propose one derived from the problem an
 plans/<plan-name>/README.md
 ```
 
-Creating the folder if it doesn't exist. Do not create `progress.md` or the `issues/` folder — those are created by `/prd-to-issues`.
+Creating the folder if it doesn't exist. Do not create `progress.md` or the `issues/` folder — those are created by the `prd-to-issues` skill.
 
 <prd-template>
 
@@ -81,4 +81,4 @@ Any further notes about the feature.
 
 </prd-template>
 
-Once the file is written, confirm the path to the user and let them know they can run `/prd-to-issues` next to break it into implementation issues.
+Once the file is written, confirm the path to the user and let them know they can invoke the `prd-to-issues` skill next to break it into implementation issues.

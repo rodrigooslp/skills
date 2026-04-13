@@ -91,4 +91,4 @@ Reference by number from the parent PRD:
 
 Do NOT edit `plans/<plan-name>/README.md`.
 
-Once all files are written, confirm the full list of created files to the user and let them know they can run `/implement-issue` to start working on any unblocked issue.
+Once all files are written, confirm the full list of created files to the user and let them know they can invoke the `work-on-issue` skill to start working on any unblocked issue.

@@ -4,10 +4,10 @@ description: >
   Use this skill whenever you are asked to implement, work on, or complete a
   documented issue file — for example "work on issue 004", "implement issue 012",
   "you're agent on issue 007", or any prompt that assigns a numbered issue to
-  Claude. The skill scopes Claude strictly to the assigned issue, loads the right
-  context files, enforces quality gates, and produces a structured completion
-  report. Always use this skill when an issue number is mentioned alongside a
-  request to do implementation work.
+  the agent. The skill scopes the agent strictly to the assigned issue, loads
+  the right context files, enforces quality gates, and produces a structured
+  completion report. Always use this skill when an issue number is mentioned
+  alongside a request to do implementation work.
 ---
 
 # Issue Agent Skill
