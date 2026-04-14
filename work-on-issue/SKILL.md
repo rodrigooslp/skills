@@ -155,11 +155,18 @@ Output a completion report in this exact format:
 
 ## Step 8 — Update Progress Log (optional but encouraged)
 
-Append a short entry to `plans/<plan>/progress.md`. Keep it tight — the issue
-file is the full record. Write only what would genuinely help the next agent:
-non-obvious decisions, gotchas, or context not captured elsewhere.
+**Append** a short entry to the **very end** of `plans/<plan>/progress.md`.
 
-Use this format:
+⚠️ **Placement matters:** Your entry must go **after every existing entry** in
+the file — never between existing entries, never at the top. Read the file
+first, then append your block at the bottom. The progress log is chronological;
+inserting in the middle breaks the timeline for the next agent.
+
+Keep it tight — the issue file is the full record. Write only what would
+genuinely help the next agent: non-obvious decisions, gotchas, or context not
+captured elsewhere.
+
+Use this format, appended at the end of the file:
 
 ```markdown
 ### Issue <NUMBER> — <Issue Title>
