@@ -49,7 +49,7 @@ Iterate until the user approves the breakdown.
 
 ### 5. Create the issue files
 
-Once approved, create the `plans/<plan-name>/issues/` folder if it doesn't exist.
+Once approved, create the `plans/<plan-name>/issues/` folder if it doesn't exist. Also create an empty `plans/<plan-name>/progress.md` if it doesn't already exist.
 
 Number issues with zero-padded three-digit prefixes starting from `001`. Derive a short kebab-case slug from the title.
 
@@ -90,5 +90,33 @@ Reference by number from the parent PRD:
 </issue-template>
 
 Do NOT edit `plans/<plan-name>/README.md`.
+
+### 6. Generate `index.json`
+
+After creating all issue files, generate `plans/<plan-name>/issues/index.json`. This file is the machine-readable index consumed by the pipeline.
+
+<index-json-schema>
+The file is a JSON array (2-space indented, trailing newline) of objects in numeric order. Each object has exactly these fields:
+
+| Field    | Type       | Description                                                    |
+|----------|------------|----------------------------------------------------------------|
+| `id`     | `string`   | Zero-padded three-digit issue number (e.g. `"001"`)            |
+| `slug`   | `string`   | Kebab-case slug matching the issue filename                    |
+| `deps`   | `string[]` | Array of `id` values this issue is blocked by (empty if none)  |
+| `status` | `string`   | Always `"pending"` for newly generated issues                  |
+
+Example:
+
+```json
+[
+  { "id": "001", "slug": "project-scaffolding", "deps": [], "status": "pending" },
+  { "id": "002", "slug": "data-model", "deps": ["001"], "status": "pending" },
+  { "id": "003", "slug": "api-endpoints", "deps": ["001"], "status": "pending" },
+  { "id": "004", "slug": "ui-shell", "deps": ["002", "003"], "status": "pending" }
+]
+```
+</index-json-schema>
+
+### 7. Confirm completion
 
 Once all files are written, confirm the full list of created files to the user and let them know they can invoke the `work-on-issue` skill to start working on any unblocked issue.
