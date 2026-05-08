@@ -127,7 +127,16 @@ If a command fails:
 
 ---
 
-## Step 7 — Structured Completion Report
+## Step 7 — Mark Issue as Done in index.json
+
+If `plans/<plan>/issues/index.json` exists, update the status of your assigned
+issue to `"done"` in that file. **The issue is not considered complete until
+this is done.** This keeps the issue tracker accurate for subsequent agents and
+reviewers.
+
+---
+
+## Step 8 — Structured Completion Report
 
 Output a completion report in this exact format:
 
@@ -153,7 +162,7 @@ Output a completion report in this exact format:
 
 ---
 
-## Step 8 — Update Progress Log (optional but encouraged)
+## Step 9 — Update Progress Log (optional but encouraged)
 
 **Append** a short entry to the **very end** of `plans/<plan>/progress.md`.
 
