@@ -27,6 +27,7 @@ plans/
 └── <plan-name>/
     ├── README.md       ← spec / requirements for this plan
     ├── progress.md     ← agent handoff notes
+    ├── index.json      ← optional issue tracker (see Step 1 & Step 7)
     └── issues/
         ├── 001-some-feature.md
         ├── 002-another-task.md
@@ -42,11 +43,27 @@ before continuing.
 
 ## Step 1 — Identify the Assigned Issue
 
-The issue number comes from the prompt (e.g. "issue 004" → `004`).
+The issue number usually comes from the prompt (e.g. "issue 004" → `004`).
+
+### When the prompt includes a number
 
 1. Resolve the plan folder as described above.
 2. Glob `plans/<plan>/issues/<NUMBER>-*.md` to find the issue file.
 3. If multiple files match or none match, **stop and ask the user** to clarify.
+
+### When the prompt does not include a number
+
+1. Resolve the plan folder as described above.
+2. Read `plans/<plan>/index.json`. It is a list of entries shaped like:
+   ```json
+   { "id": "001", "slug": "stale-checks", "deps": [], "status": "done" }
+   ```
+3. Walk the entries in **ascending `id` order** and pick the **first** entry
+   whose `status` is **not** `"done"`. The chosen entry's `id` is your issue
+   number and its `slug` identifies the file at
+   `plans/<plan>/issues/<id>-<slug>.md`.
+4. If `plans/<plan>/index.json` does not exist, **stop and ask the user** which
+   issue you should work on.
 
 ---
 
@@ -129,7 +146,7 @@ If a command fails:
 
 ## Step 7 — Mark Issue as Done in index.json
 
-If `plans/<plan>/issues/index.json` exists, update the status of your assigned
+If `plans/<plan>/index.json` exists, update the status of your assigned
 issue to `"done"` in that file. **The issue is not considered complete until
 this is done.** This keeps the issue tracker accurate for subsequent agents and
 reviewers.
