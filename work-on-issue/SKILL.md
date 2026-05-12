@@ -45,25 +45,44 @@ before continuing.
 
 The issue number usually comes from the prompt (e.g. "issue 004" → `004`).
 
+`plans/<plan>/index.json` (when present) is a list of entries shaped like:
+
+```json
+{ "id": "001", "slug": "stale-checks", "deps": [], "status": "done" }
+```
+
 ### When the prompt includes a number
 
 1. Resolve the plan folder as described above.
-2. Glob `plans/<plan>/issues/<NUMBER>-*.md` to find the issue file.
-3. If multiple files match or none match, **stop and ask the user** to clarify.
+2. If `index.json` exists, find the matching entry by `id`. The file lives at
+   `plans/<plan>/issues/<id>-<slug>.md`.
+3. Otherwise, glob `plans/<plan>/issues/<NUMBER>-*.md` to find the issue file.
+4. If multiple files match or none match, **stop and ask the user** to clarify.
 
 ### When the prompt does not include a number
 
 1. Resolve the plan folder as described above.
-2. Read `plans/<plan>/index.json`. It is a list of entries shaped like:
-   ```json
-   { "id": "001", "slug": "stale-checks", "deps": [], "status": "done" }
-   ```
+2. Read `plans/<plan>/index.json`.
 3. Walk the entries in **ascending `id` order** and pick the **first** entry
    whose `status` is **not** `"done"`. The chosen entry's `id` is your issue
    number and its `slug` identifies the file at
    `plans/<plan>/issues/<id>-<slug>.md`.
 4. If `plans/<plan>/index.json` does not exist, **stop and ask the user** which
    issue you should work on.
+
+### Dependency check (applies in both cases when `index.json` exists)
+
+After resolving the chosen entry, inspect its `deps` array:
+
+1. For every id in `deps`, look up the corresponding entry in `index.json`.
+2. If **any** of those dependency entries has a `status` other than `"done"`,
+   **stop and ask the user** whether they'd rather work on one of the
+   unfinished dependencies first. List the unfinished dep ids and their slugs
+   in your question so the user can pick directly.
+3. Only proceed with the originally chosen issue if the user confirms, or if
+   all deps are already `"done"`.
+4. If a dep id appears in `deps` but is missing from `index.json`, treat that
+   as an inconsistency and **stop and ask the user**.
 
 ---
 
