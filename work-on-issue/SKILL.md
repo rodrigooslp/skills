@@ -42,7 +42,7 @@ plans/
 
 3. Pre-flight context read.
 
-   Read these files in order: `plans/<plan>/README.md` (product requirements and constraints), `<file>` from Step 1's JSON (your exact scope), and `plans/<plan>/progress.md` if it exists (notes from prior agents). Internally summarise: what you must do, what you must not touch, prior gotchas. Do not begin implementation until that summary is clear.
+   Read the assigned issue file (`<file>` from Step 1's JSON) and `plans/<plan>/progress.md` if it exists. The issue file is the authoritative source for what to do. `progress.md` is shared notes from other workers — read it for awareness only.
 
 4. Strict scope rules.
 
@@ -54,13 +54,29 @@ plans/
 
    Leave out-of-scope observations as inline `// Issue NNN: <observation>` comments and move on.
 
-5. Implement. Do the work. Follow the issue file exactly. Refer back to `README.md` for intent if ambiguous.
+5. Implement.
+
+   Follow the issue file exactly.
+
+   **Commit at meaningful checkpoints**, not at the end. After finishing a chunk, invoke the `use-conventional-commits` skill before moving on. A chunk is ready when:
+
+   1. **One conventional type.** Types are `feat`, `fix`, `refactor`, `docs`, `test`, `perf`, `style`, `build`, `ci`, `chore`, `revert` — see [`use-conventional-commits/REFERENCE.md`](../use-conventional-commits/REFERENCE.md) for the full grammar. When the type you'd write changes, commit now.
+   2. **One-sentence describable.** Without "and" or compound verbs.
+   3. **Tests co-located.** Production code and its tests live in the same commit.
+
+   Intermediate commits may break the build — that's fine. The final state is verified at Step 6.
+
+   Out-of-scope tangents: commit the current chunk first, then leave the tangent as an `// Issue NNN:` comment per Step 4.
 
 6. Quality gates.
 
    Run whichever scripts exist in `package.json`, in this order, using the package manager from Step 2: `<pm> run test`, `<pm> run typecheck`, `<pm> run lint`, `<pm> run build`. All present scripts must pass with zero errors. On failure: fix the root cause (in scope), re-run from the failing step. If a fix requires out-of-scope changes, document the blocker and stop — do not hack around it.
 
+   Any fix required by a failing gate is its own commit (`fix:` or `refactor:` as appropriate). After the final gate passes, the working tree must be clean.
+
 7. Mark the issue as done (mandatory). This step is the one agents most often forget. Downstream skills depend on the tracker being accurate. Do not skip and do not defer to after the completion report.
+
+   Before running the script, verify the working tree is clean (`git status --porcelain=v1` empty). If it isn't, you missed a commit — handle it first.
 
    Run `node <SKILL_DIR>/scripts/mark-done.mjs --plan <plan> --id <id>`. The script sets the entry's `status` to `"done"` in `plans/<plan>/issues/index.json`, preserves the file's original single-line-per-entry formatting, validates by re-parsing after writing, and is idempotent. If the script exits non-zero, stop and surface the error before producing the completion report. The issue is not complete until this script succeeds.
 

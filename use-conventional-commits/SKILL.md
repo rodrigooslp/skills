@@ -1,9 +1,9 @@
 ---
 name: use-conventional-commits
-description: Inspect uncommitted work, draft a Conventional Commits 1.0.0–compliant message, confirm it with the user, then stage and commit. Never pushes, amends, rebases, or rewrites history. Use whenever the user asks to commit changes, write a commit message, or stage and commit work — for example "commit this", "make a commit", or "wrap this up in a commit".
+description: Inspect uncommitted work, draft a Conventional Commits 1.0.0–compliant message, then stage and commit autonomously. Never pushes, amends, rebases, or rewrites history. Use whenever the user asks to commit changes, write a commit message, or stage and commit work — for example "commit this", "make a commit", or "wrap this up in a commit".
 ---
 
-This skill is invoked when the user wants to commit uncommitted work. You are a commit assistant: inspect the working tree, draft a single commit message that complies with the [Conventional Commits 1.0.0](https://www.conventionalcommits.org/) specification, confirm it with the user, and (only with approval) stage and commit. Your scope ends at `git commit`.
+This skill is invoked when the user wants to commit uncommitted work. You are a commit assistant: inspect the working tree, draft a single commit message that complies with the [Conventional Commits 1.0.0](https://www.conventionalcommits.org/) specification, then stage and commit. Your scope ends at `git commit`.
 
 See [REFERENCE.md](REFERENCE.md) for the full Conventional Commits 1.0.0 spec (types, scope, breaking-change marker, description/body/footer rules, token grammar). See [EXAMPLES.md](EXAMPLES.md) for worked messages.
 
@@ -15,7 +15,6 @@ Hard rules — never violate:
 - Never run destructive commands (`git reset --hard`, `git clean -f`, `git checkout -- .`, branch deletion).
 - Never commit files that look like secrets (`.env`, `*.pem`, credential files). If the commit set includes one, warn the user and ask before proceeding.
 - Never create an empty commit.
-- Always confirm the message with the user before committing.
 - Always surface git errors verbatim and stop.
 
 1. Inspect the working tree.
@@ -47,17 +46,9 @@ Hard rules — never violate:
 
    The format is `<type>[optional scope][!]: <description>` followed (optionally) by a blank line + body and a blank line + footer(s). Pick a type that fits the dominant change — common types are `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. Do not invent new types. For the full type table, scope rules, breaking-change marker semantics, and description/body/footer formatting, see [REFERENCE.md](REFERENCE.md). For worked messages, see [EXAMPLES.md](EXAMPLES.md).
 
-5. Present the draft for approval.
+5. Stage and commit.
 
-   Show the user the proposed commit message exactly as it will be written, inside a fenced block. State which commit set will be committed (staged only, or everything) and a one-line rationale for the chosen type/scope (and breaking marker, if any). Then ask explicitly:
-
-   > Approve this message and commit? (yes / edit / cancel)
-
-   Do not stage or commit until the user replies with approval. If the user asks for an edit, revise and present again. If the user cancels, stop and do not touch the working tree.
-
-6. Stage and commit.
-
-   Only after explicit approval, stage based on the commit set chosen in Step 2:
+   Stage based on the commit set chosen in Step 2:
 
    - Staged only → do not run `git add`. The index is already correct.
    - Everything → run `git add -A`.
@@ -75,8 +66,8 @@ Hard rules — never violate:
    )"
    ```
 
-   Run `git status` once after the commit so the user can see the result.
+   Run `git status` once after the commit so the result is visible.
 
-7. Handle errors without trying to fix them.
+6. Handle errors without trying to fix them.
 
    If `git add` or `git commit` fails for any reason (pre-commit hook failure, nothing to commit, signing error, etc.): show the full, verbatim stdout and stderr from the failing command; state plainly "The commit failed — passing this through to you to decide how to proceed."; do not retry, modify files, bypass hooks, amend, or run `git reset`. The user will decide whether to fix the underlying issue or take another path.
