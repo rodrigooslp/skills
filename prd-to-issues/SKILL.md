@@ -19,14 +19,17 @@ This skill is invoked when the user wants to break a PRD into implementation iss
    - Prefer many thin slices over few thick ones
    </vertical-slice-rules>
 
+   For each slice, assign an **effort** level from 1-5 using the rubric in [REFERENCE.md](REFERENCE.md). The level reflects how much reasoning and design judgement the issue requires, which downstream tooling uses to route the issue to an appropriately capable model.
+
 4. Quiz the user. Present the proposed breakdown as a numbered list. For each slice, show:
 
    - **Title**: short descriptive name
    - **Type**: HITL / AFK
+   - **Effort**: 1-5 (see [REFERENCE.md](REFERENCE.md))
    - **Blocked by**: which other slices (if any) must complete first
    - **User stories covered**: which user stories from the PRD this addresses
 
-   Ask the user: does the granularity feel right (too coarse / too fine)? Are the dependency relationships correct? Should any slices be merged or split further? Are the correct slices marked as HITL vs AFK?
+   Ask the user: does the granularity feel right (too coarse / too fine)? Are the dependency relationships correct? Should any slices be merged or split further? Are the correct slices marked as HITL vs AFK? Do the effort levels look right?
 
    Iterate until the user approves the breakdown.
 
@@ -42,6 +45,10 @@ This skill is invoked when the user wants to break a PRD into implementation iss
    ## Type
 
    HITL / AFK
+
+   ## Effort
+
+   A single integer from 1 to 5.
 
    ## What to build
 
@@ -75,6 +82,7 @@ This skill is invoked when the user wants to break a PRD into implementation iss
    | Field    | Type       | Description                                                    |
    |----------|------------|----------------------------------------------------------------|
    | `id`     | `string`   | Zero-padded three-digit issue number (e.g. `"001"`)            |
+   | `effort` | `number`   | Effort level from 1-5 (see [REFERENCE.md](REFERENCE.md)) |
    | `slug`   | `string`   | Kebab-case slug matching the issue filename                    |
    | `deps`   | `string[]` | Array of `id` values this issue is blocked by (empty if none)  |
    | `status` | `string`   | Always `"pending"` for newly generated issues                  |
@@ -83,10 +91,10 @@ This skill is invoked when the user wants to break a PRD into implementation iss
 
    ```json
    [
-     { "id": "001", "slug": "project-scaffolding", "deps": [], "status": "pending" },
-     { "id": "002", "slug": "data-model", "deps": ["001"], "status": "pending" },
-     { "id": "003", "slug": "api-endpoints", "deps": ["001"], "status": "pending" },
-     { "id": "004", "slug": "ui-shell", "deps": ["002", "003"], "status": "pending" }
+     { "id": "001", "effort": 1, "slug": "project-scaffolding", "deps": [], "status": "pending" },
+     { "id": "002", "effort": 3, "slug": "data-model", "deps": ["001"], "status": "pending" },
+     { "id": "003", "effort": 4, "slug": "api-endpoints", "deps": ["001"], "status": "pending" },
+     { "id": "004", "effort": 5, "slug": "ui-shell", "deps": ["002", "003"], "status": "pending" }
    ]
    ```
    </index-json-schema>

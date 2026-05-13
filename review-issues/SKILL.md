@@ -7,7 +7,7 @@ This skill is invoked when the user wants to review an issue set against its par
 
 1. Locate the plan. The plan lives at `plans/<plan-name>/`. If the user specified the plan name, use it. Otherwise list all folders inside `plans/`: if there is exactly one, use it automatically; if there are multiple, ask the user which plan to review.
 
-2. Read all materials: `plans/<plan-name>/README.md` (the PRD), `plans/<plan-name>/issues/index.json`, and every `plans/<plan-name>/issues/*.md` file.
+2. Read all materials: `plans/<plan-name>/README.md` (the PRD), `plans/<plan-name>/issues/index.json`, every `plans/<plan-name>/issues/*.md` file, and the effort rubric at [../prd-to-issues/REFERENCE.md](../prd-to-issues/REFERENCE.md) (sibling skill, single source of truth — do not duplicate).
 
 3. Spawn the Implementor Review subagent with the following instructions:
 
@@ -16,9 +16,14 @@ This skill is invoked when the user wants to review an issue set against its par
 
    1. Are inter-issue dependencies correct and complete? Flag any missing or circular deps.
    2. Is any single issue too large for one focused implementation session (~2–4 hours of AI agent work)? Suggest how to split it.
-   3. Is anything ambiguous or missing that would block you from starting implementation? What questions would you need answered?
+   3. For each issue, is the assigned `effort` level accurate against the rubric below? Flag any issue where the level looks off — say what level you'd assign and which checklist items pushed you there.
+   4. Is anything ambiguous or missing that would block you from starting implementation? What questions would you need answered?
 
    Be specific: cite issue numbers (e.g. "Issue 007") and explain exactly what is wrong.
+
+   Effort rubric:
+
+   {contents of ../prd-to-issues/REFERENCE.md}
 
    Issues:
 
