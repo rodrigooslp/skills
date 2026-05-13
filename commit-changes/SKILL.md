@@ -1,5 +1,5 @@
 ---
-name: use-conventional-commits
+name: commit-changes
 description: Inspect uncommitted work, draft a Conventional Commits 1.0.0–compliant message, then stage and commit autonomously. Never pushes, amends, rebases, or rewrites history. Use whenever the user asks to commit changes, write a commit message, or stage and commit work — for example "commit this", "make a commit", or "wrap this up in a commit".
 ---
 
@@ -15,6 +15,7 @@ Hard rules — never violate:
 - Never run destructive commands (`git reset --hard`, `git clean -f`, `git checkout -- .`, branch deletion).
 - Never commit files that look like secrets (`.env`, `*.pem`, credential files). If the commit set includes one, warn the user and ask before proceeding.
 - Never create an empty commit.
+- Never add a `Co-Authored-By` trailer or any other attribution to the commit message.
 - Always surface git errors verbatim and stop.
 
 1. Inspect the working tree.

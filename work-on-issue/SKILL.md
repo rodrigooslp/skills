@@ -58,9 +58,9 @@ plans/
 
    Follow the issue file exactly.
 
-   **Commit at meaningful checkpoints**, not at the end. After finishing a chunk, invoke the `use-conventional-commits` skill before moving on. A chunk is ready when:
+   **Commit at meaningful checkpoints**, not at the end. After finishing a chunk, invoke the `commit-changes` skill before moving on. A chunk is ready when:
 
-   1. **One conventional type.** Types are `feat`, `fix`, `refactor`, `docs`, `test`, `perf`, `style`, `build`, `ci`, `chore`, `revert` — see [`use-conventional-commits/REFERENCE.md`](../use-conventional-commits/REFERENCE.md) for the full grammar. When the type you'd write changes, commit now.
+   1. **One conventional type.** Types are `feat`, `fix`, `refactor`, `docs`, `test`, `perf`, `style`, `build`, `ci`, `chore`, `revert` — see [`commit-changes/REFERENCE.md`](../commit-changes/REFERENCE.md) for the full grammar. When the type you'd write changes, commit now.
    2. **One-sentence describable.** Without "and" or compound verbs.
    3. **Tests co-located.** Production code and its tests live in the same commit.
 
