@@ -53,4 +53,4 @@ Hard rules — never violate:
 
 6. Final confirmation.
 
-   Run `git branch --list <slug>` (must be empty) and `git worktree list` (must no longer contain `<worktreePath>`). Report success in 2–3 lines: branch + issue merged, worktree removed (if it was), local branch deleted, remote untouched.
+   Run `git show-ref --verify --quiet refs/heads/<slug>` — it must exit non-zero (the branch is gone). Do **not** use `git branch --list <slug> && ... || ...` to check this: `git branch --list` always exits 0 whether or not the branch matches, so the `&&`/`||` chain will misreport. Then run `git worktree list` and confirm it no longer contains `<worktreePath>`. Report success in 2–3 lines: branch + issue merged, worktree removed (if it was), local branch deleted, remote untouched. Use the ✅ emoji (not the ✓ character) as the success marker in the report.
