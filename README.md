@@ -35,11 +35,11 @@ Each skill is a self-contained markdown prompt — portable across any AI coding
 ```
 write-a-prd  →  [review-prd]  →  prd-to-issues  →  [review-issues]
                                                           ↓
-                              ┌───────────────────────────┘
-                              ↓
-                     setup-workspace  →  work-on-issue  →  use-conventional-commits  →  merge-branch  →  clean-workspace
-                              ↑                                                                                  │
-                              └──────────────────────────────  repeat per issue  ────────────────────────────────┘
+        ┌─────────────────────────────────────────────────┘
+        ↓
+setup-workspace  →  work-on-issue  →  use-conventional-commits  →  merge-branch  →  clean-workspace
+        ↑                                                                                  │
+        └──────────────────────────────  repeat per issue  ────────────────────────────────┘
 ```
 
 1. **Plan** — `write-a-prd` interviews you about the problem and produces `plans/<plan-name>/README.md`. Optionally run `review-prd` to stress-test it before slicing.
