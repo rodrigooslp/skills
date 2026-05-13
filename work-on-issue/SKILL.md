@@ -12,83 +12,56 @@ description: >
 
 # Issue Agent Skill
 
-You are a focused implementation agent working on a JavaScript/TypeScript web
-project. Your scope is **strictly limited** to the work described in your
-assigned issue file — nothing more, nothing less.
+You are a focused implementation agent. Your scope is **strictly limited** to
+the work described in your assigned issue file — nothing more, nothing less.
 
----
+Helper scripts under `<SKILL_DIR>/scripts/` handle the deterministic bits
+(plan resolution, issue lookup, marking done). `<SKILL_DIR>` is the directory
+containing this `SKILL.md`. Construct full paths from there.
 
 ## Folder Convention
-
-This skill assumes the following structure (no config file needed):
 
 ```
 plans/
 └── <plan-name>/
     ├── README.md       ← spec / requirements for this plan
-    ├── progress.md     ← agent handoff notes
-    ├── index.json      ← optional issue tracker (see Step 1 & Step 7)
+    ├── progress.md     ← agent handoff notes (optional)
     └── issues/
+        ├── index.json  ← issue tracker
         ├── 001-some-feature.md
         ├── 002-another-task.md
         └── ...
 ```
 
-The plan name comes from the prompt (e.g. "work on issue 003 in the auth plan"
-→ `plans/auth/`). If no plan name is given and there is only one folder inside
-`plans/`, use that. If there are multiple and none is specified, **ask the user**
-before continuing.
+## Step 1 — Resolve plan and issue
 
----
-
-## Step 1 — Identify the Assigned Issue
-
-The issue number usually comes from the prompt (e.g. "issue 004" → `004`).
-
-`plans/<plan>/index.json` (when present) is a list of entries shaped like:
-
-```json
-{ "id": "001", "slug": "stale-checks", "deps": [], "status": "done" }
+```
+node <SKILL_DIR>/scripts/resolve-plan.mjs [--plan <name>]
 ```
 
-### When the prompt includes a number
+Stdout = plan name. Exit 2 with a list = multiple plans; ask the user and
+re-run with `--plan`.
 
-1. Resolve the plan folder as described above.
-2. If `index.json` exists, find the matching entry by `id`. The file lives at
-   `plans/<plan>/issues/<id>-<slug>.md`.
-3. Otherwise, glob `plans/<plan>/issues/<NUMBER>-*.md` to find the issue file.
-4. If multiple files match or none match, **stop and ask the user** to clarify.
+```
+node <SKILL_DIR>/scripts/resolve-issue.mjs --plan <plan> [--id <id>]
+```
 
-### When the prompt does not include a number
+Pass `--id` when the prompt named a specific issue (e.g. "issue 4" → `--id 4`;
+the script handles padding). Omit it to let the script pick the first
+non-done entry in ascending `id` order. Exit 2 = all done; stop and tell the
+user.
 
-1. Resolve the plan folder as described above.
-2. Read `plans/<plan>/index.json`.
-3. Walk the entries in **ascending `id` order** and pick the **first** entry
-   whose `status` is **not** `"done"`. The chosen entry's `id` is your issue
-   number and its `slug` identifies the file at
-   `plans/<plan>/issues/<id>-<slug>.md`.
-4. If `plans/<plan>/index.json` does not exist, **stop and ask the user** which
-   issue you should work on.
+Stdout = JSON `{ id, slug, status, file, fileExists, deps, unfinishedDeps }`.
 
-### Dependency check (applies in both cases when `index.json` exists)
+- If `fileExists` is `false`, **stop** and surface the path — the index says
+  the issue exists but the markdown file is missing.
+- If `unfinishedDeps` is non-empty, **stop and ask the user** whether they'd
+  rather work on one of the unfinished deps first. List them so the user can
+  pick directly. Only proceed if the user confirms.
 
-After resolving the chosen entry, inspect its `deps` array:
+## Step 2 — Detect package manager
 
-1. For every id in `deps`, look up the corresponding entry in `index.json`.
-2. If **any** of those dependency entries has a `status` other than `"done"`,
-   **stop and ask the user** whether they'd rather work on one of the
-   unfinished dependencies first. List the unfinished dep ids and their slugs
-   in your question so the user can pick directly.
-3. Only proceed with the originally chosen issue if the user confirms, or if
-   all deps are already `"done"`.
-4. If a dep id appears in `deps` but is missing from `index.json`, treat that
-   as an inconsistency and **stop and ask the user**.
-
----
-
-## Step 2 — Detect the Package Manager
-
-Check the project root for lock files in this order:
+Check the project root for a lock file:
 
 | Lock file | Package manager |
 |-----------|----------------|
@@ -97,52 +70,39 @@ Check the project root for lock files in this order:
 | `package-lock.json` | `npm` |
 | `bun.lockb` | `bun` |
 
-If none is found, **ask the user** which package manager to use before continuing.
+If none is found, **ask the user** which to use.
 
----
+## Step 3 — Pre-flight context read
 
-## Step 3 — Pre-flight Context Read (required)
+Read these files in order:
 
-Before touching any code, read these three files **in order**:
+1. `plans/<plan>/README.md` — product requirements and constraints.
+2. `<file>` from Step 1's JSON — your exact scope.
+3. `plans/<plan>/progress.md` if it exists — notes from prior agents.
 
-1. `plans/<plan>/README.md` — understand the product requirements and constraints.
-2. `plans/<plan>/issues/<NUMBER>-*.md` — your exact scope.
-3. `plans/<plan>/progress.md` — notes from agents that worked on previous issues
-   (skip gracefully if the file doesn't exist yet).
+Internally summarise: what you must do, what you must not touch, prior
+gotchas. Do not begin implementation until that summary is clear.
 
-After reading, write a short internal summary stating:
-- What you must do (drawn from the issue file)
-- What you must not touch
-- Any dependencies or gotchas from prior agents
-
-Do not begin implementation until this summary is clear to you.
-
----
-
-## Step 4 — Strict Scope Rules
+## Step 4 — Strict scope rules
 
 ✅ Complete **all** work described in your assigned issue file
-✅ Read other issue files **for context only** if needed to understand dependencies
+✅ Read other issue files **for context only** if needed
 ❌ Do **not** implement, modify, or begin work described in other issue files
 ❌ Do **not** work ahead — even if a next step seems obvious
 ❌ Do **not** edit, rename, or close any issue file
 
-If you notice something that belongs in another issue, leave an inline comment
-(`// Issue NNN: <observation>`) and move on.
-
----
+Leave out-of-scope observations as inline `// Issue NNN: <observation>`
+comments and move on.
 
 ## Step 5 — Implementation
 
-Do the work. Follow the issue file exactly. Refer back to `README.md` if you
-need to resolve ambiguity about intent or product requirements.
+Do the work. Follow the issue file exactly. Refer back to `README.md` for
+intent if ambiguous.
 
----
+## Step 6 — Quality gates
 
-## Step 6 — Quality Gates
-
-When implementation is complete, detect which scripts are available in
-`package.json` and run them in this order, skipping any that don't exist:
+Run whichever scripts exist in `package.json`, in this order, using the
+package manager from Step 2:
 
 ```
 <pm> run test
@@ -151,30 +111,31 @@ When implementation is complete, detect which scripts are available in
 <pm> run build
 ```
 
-Where `<pm>` is the package manager detected in Step 2.
+All present scripts must pass with zero errors. On failure: fix the root
+cause (in scope), re-run from the failing step. If a fix requires
+out-of-scope changes, document the blocker and stop — do not hack around it.
 
-**All available scripts must pass with zero errors before you can declare done.**
+## Step 7 — Mark issue as done (MANDATORY)
 
-If a command fails:
-1. Fix the root cause (within scope).
-2. Re-run from the failing step.
-3. If fixing requires out-of-scope changes, document the blocker clearly and
-   stop — do not hack around it.
+🛑 This step is the one agents most often forget. Downstream skills depend on
+the tracker being accurate. **Do not skip and do not defer to after the
+completion report.**
 
----
+```
+node <SKILL_DIR>/scripts/mark-done.mjs --plan <plan> --id <id>
+```
 
-## Step 7 — Mark Issue as Done in index.json
+The script:
 
-If `plans/<plan>/index.json` exists, update the status of your assigned
-issue to `"done"` in that file. **The issue is not considered complete until
-this is done.** This keeps the issue tracker accurate for subsequent agents and
-reviewers.
+- Sets the entry's `status` to `"done"` in `plans/<plan>/issues/index.json`.
+- Preserves the file's original formatting (single-line-per-entry).
+- Validates by re-parsing the file after writing.
+- Is idempotent — running on an already-done entry is a no-op.
 
----
+If the script exits non-zero, **stop and surface the error** before producing
+the completion report. The issue is not complete until this script succeeds.
 
-## Step 8 — Structured Completion Report
-
-Output a completion report in this exact format:
+## Step 8 — Completion report
 
 ```
 ## Issue <NUMBER> — Completion Report
@@ -183,11 +144,11 @@ Output a completion report in this exact format:
 
 **Changes made:**
 - <file or component>: <what changed and why>
-- ...
 
 **Quality gates:**
 - <command> — PASS / FAIL
-- ...
+
+**index.json updated:** ✅ Yes (status set to "done") / ❌ No (explain)
 
 **Out-of-scope observations:**
 - <anything noted for other issues, or "None">
@@ -196,22 +157,15 @@ Output a completion report in this exact format:
 - <key files/areas explicitly left unchanged>
 ```
 
----
+`index.json updated` must be ✅ Yes. If it isn't, the issue is not complete —
+go back to Step 7.
 
-## Step 9 — Update Progress Log (optional but encouraged)
+## Step 9 — Update progress log (optional but encouraged)
 
-**Append** a short entry to the **very end** of `plans/<plan>/progress.md`.
-
-⚠️ **Placement matters:** Your entry must go **after every existing entry** in
-the file — never between existing entries, never at the top. Read the file
-first, then append your block at the bottom. The progress log is chronological;
-inserting in the middle breaks the timeline for the next agent.
-
-Keep it tight — the issue file is the full record. Write only what would
-genuinely help the next agent: non-obvious decisions, gotchas, or context not
-captured elsewhere.
-
-Use this format, appended at the end of the file:
+**Append** a short entry to the **very end** of `plans/<plan>/progress.md`
+— never between existing entries, never at the top. The log is
+chronological; inserting in the middle breaks the timeline for the next
+agent. If `progress.md` does not exist, skip this step.
 
 ```markdown
 ### Issue <NUMBER> — <Issue Title>
@@ -219,4 +173,5 @@ Use this format, appended at the end of the file:
 - <Another if needed — keep to 2–4 bullets max>
 ```
 
-Do **not** summarise what you did. Do **not** repeat the issue file.
+Do **not** summarise what you did. Do **not** repeat the issue file. Write
+only what would help the next agent.
