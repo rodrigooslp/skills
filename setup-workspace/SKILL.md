@@ -196,14 +196,69 @@ shell-specific directory changes.
 
 ---
 
-## Step 7 — Report Success
+## Step 7 — Copy Root `.env` Files Into the Worktree
 
-When everything succeeds, tell the user, in 2–3 lines:
+`.env` files are usually gitignored, so the freshly checked-out worktree
+will not have them. Copy any that exist in the **main working directory's
+root** into `./worktrees/<name>/`.
+
+Run this command **verbatim**, substituting `<name>` exactly once:
+
+```
+node -e "const fs=require('fs');const dest='./worktrees/<name>/';let n=0;for(const f of fs.readdirSync('.')){if((f==='.env'||f.startsWith('.env.'))&&fs.statSync(f).isFile()){fs.copyFileSync(f,dest+f);console.log('Copied '+f);n++;}}console.log(n+' .env file(s) copied');"
+```
+
+What this does, step by step:
+
+1. Reads every entry in the current directory (the main working dir).
+2. Keeps only entries that are named exactly `.env` **or** start with
+   `.env.` (e.g. `.env.local`, `.env.development`, `.env.production`).
+3. Skips any matching entry that is not a regular file (i.e. a directory
+   that happens to be named `.env.something`).
+4. Copies each matching file into `./worktrees/<name>/`, overwriting any
+   same-named file already there.
+5. Prints one line per copied file plus a final count.
+
+Run this from the main working directory — the same directory you ran
+`git worktree add` from. Do **not** `cd` into the worktree.
+
+### Notes for the model
+
+- If **no `.env` files exist**, the command prints `0 .env file(s) copied`
+  and exits cleanly. That is success, not failure.
+- The `node` binary is guaranteed to be available because `pnpm install`
+  in Step 6 just ran. Do **not** substitute a platform-specific copy
+  command (`cp`, `Copy-Item`, `xcopy`, etc.) — use the `node -e` command
+  exactly as written.
+- Do **not** copy `.env*` files from any subdirectory of the root — only
+  the root. The `readdirSync('.')` call already restricts to the root.
+- Do **not** copy directories — the `isFile()` check already restricts to
+  regular files.
+
+### If the copy command fails
+
+Show the full stdout and stderr to the user verbatim and **stop**. Do
+**not**:
+
+- Retry with a shell-specific copy command.
+- Delete the worktree or branch.
+- Edit any `.env` files.
+
+The worktree is still usable; the user can finish copying manually.
+
+---
+
+## Step 8 — Report Success
+
+When everything succeeds, tell the user, in 2–4 lines:
 
 - The worktree path (`./worktrees/<name>`).
 - The branch name (`<name>`) and whether it was newly created from
   `<current>` (Case A) or attached to a pre-existing branch (Case B).
 - That `pnpm install` completed.
+- How many `.env*` files were copied (from the Step 7 output). If zero,
+  say so explicitly — e.g. "no `.env` files found in the root, nothing
+  copied" — so the user knows it was checked.
 
 Stop there. Do not suggest next steps unless asked.
 
@@ -226,6 +281,7 @@ If the branch does not exist (Case A):
 ```
 git worktree add -b <name> ./worktrees/<name>
 pnpm --dir ./worktrees/<name> install
+node -e "const fs=require('fs');const dest='./worktrees/<name>/';let n=0;for(const f of fs.readdirSync('.')){if((f==='.env'||f.startsWith('.env.'))&&fs.statSync(f).isFile()){fs.copyFileSync(f,dest+f);console.log('Copied '+f);n++;}}console.log(n+' .env file(s) copied');"
 ```
 
 If the branch exists, has no unmerged commits, and you have proceeded
@@ -235,6 +291,7 @@ If the branch exists, has no unmerged commits, and you have proceeded
 git log HEAD..<name> --oneline
 git worktree add ./worktrees/<name> <name>
 pnpm --dir ./worktrees/<name> install
+node -e "const fs=require('fs');const dest='./worktrees/<name>/';let n=0;for(const f of fs.readdirSync('.')){if((f==='.env'||f.startsWith('.env.'))&&fs.statSync(f).isFile()){fs.copyFileSync(f,dest+f);console.log('Copied '+f);n++;}}console.log(n+' .env file(s) copied');"
 ```
 
 Notes on the commands:
@@ -243,6 +300,9 @@ Notes on the commands:
   automatically. **Do not** create directories yourself.
 - `pnpm --dir ./worktrees/<name> install` runs pnpm as if it were inside
   the worktree. **Do not** `cd` into the worktree.
+- The `node -e "..."` command copies any root `.env` files into the new
+  worktree. Run it **after** `pnpm install` succeeds, from the main
+  working directory. Substitute `<name>` literally inside the string.
 - Use forward slashes in the path (`./worktrees/<name>`). They work on
   every platform that git supports.
 
@@ -258,11 +318,18 @@ Notes on the commands:
   altering command in the main working directory.
 - ❌ Never delete partial state on failure (no `git worktree remove`, no
   `git branch -d`, no directory deletion).
-- ❌ Never use platform-specific shell features (`cd`, `mkdir`, `Test-Path`,
-  `[ -d ]`). The commands in this skill handle directories themselves.
+- ❌ Never use platform-specific shell features (`cd`, `mkdir`, `cp`,
+  `Copy-Item`, `Test-Path`, `[ -d ]`). The git, pnpm, and `node -e`
+  commands in this skill handle directories and file copying themselves.
+- ❌ Never copy `.env` files from anywhere other than the main working
+  directory's root, and never copy them before `pnpm install` succeeds.
+- ❌ Never edit, rename, or delete the source `.env` files in the root.
+  This skill only **copies** them.
 - ❌ Never try to fix or work around errors. Any failure → surface output
   verbatim and stop.
 - ✅ Always verify the worktree does not already exist before creating it.
 - ✅ Always check `git log HEAD..<name>` before attaching to an existing
   branch.
-- ✅ Always surface git/pnpm errors verbatim and stop.
+- ✅ Always copy root `.env` files into the worktree after `pnpm install`
+  succeeds, using the `node -e` command in Step 7.
+- ✅ Always surface git/pnpm/node errors verbatim and stop.
