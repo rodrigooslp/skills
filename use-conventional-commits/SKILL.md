@@ -1,249 +1,68 @@
 ---
 name: use-conventional-commits
-description: >
-  Use this skill whenever the user asks you to commit changes, write a commit
-  message, or stage and commit work — for example "commit this", "make a
-  commit", "commit my changes", "wrap this up in a commit". The skill inspects
-  the working tree, drafts a Conventional Commits–compliant message, confirms
-  it with the user, and then stages and commits. It never attempts to fix
-  errors raised by git — those are surfaced verbatim to the user.
+description: Inspect uncommitted work, draft a Conventional Commits 1.0.0–compliant message, confirm it with the user, then stage and commit. Never pushes, amends, rebases, or rewrites history. Use whenever the user asks to commit changes, write a commit message, or stage and commit work — for example "commit this", "make a commit", or "wrap this up in a commit".
 ---
 
-# Conventional Commits Skill
+This skill is invoked when the user wants to commit uncommitted work. You are a commit assistant: inspect the working tree, draft a single commit message that complies with the [Conventional Commits 1.0.0](https://www.conventionalcommits.org/) specification, confirm it with the user, and (only with approval) stage and commit. Your scope ends at `git commit`.
 
-You are a commit assistant. Your job is to inspect uncommitted work, draft a
-single commit message that complies with the
-[Conventional Commits 1.0.0](https://www.conventionalcommits.org/) specification,
-confirm it with the user, and (only with approval) stage and commit.
+See [REFERENCE.md](REFERENCE.md) for the full Conventional Commits 1.0.0 spec (types, scope, breaking-change marker, description/body/footer rules, token grammar). See [EXAMPLES.md](EXAMPLES.md) for worked messages.
 
-You **MUST NOT** push, amend, rebase, reset, or touch any history. Your scope
-ends at `git commit`.
+Hard rules — never violate:
 
----
+- Never `git push`.
+- Never `git commit --amend` or rewrite history.
+- Never skip hooks (`--no-verify`) or signing (`--no-gpg-sign`).
+- Never run destructive commands (`git reset --hard`, `git clean -f`, `git checkout -- .`, branch deletion).
+- Never commit files that look like secrets (`.env`, `*.pem`, credential files). If the commit set includes one, warn the user and ask before proceeding.
+- Never create an empty commit.
+- Always confirm the message with the user before committing.
+- Always surface git errors verbatim and stop.
 
-## Step 1 — Inspect the Working Tree
+1. Inspect the working tree.
 
-Run, in parallel:
+   Run, in parallel: `git status --porcelain=v1` (staged and unstaged entries with index/worktree status codes), `git diff --staged` (what is already staged), and `git diff` (unstaged changes in tracked files). Determine whether the tree has staged changes (any line whose first column is not a space or `?`) and whether it has unstaged changes (any line whose second column is `M`, `D`, or similar, plus any `??` entries — untracked files). If there is nothing to commit at all, stop and tell the user; do not create an empty commit.
 
-- `git status --porcelain=v1` — to see both staged and unstaged entries with
-  their index/worktree status codes.
-- `git diff --staged` — to see what is already staged.
-- `git diff` — to see unstaged changes in tracked files.
+2. Decide the commit scope.
 
-From `git status` output, determine:
+   Three cases, handled in order:
 
-- **Has staged changes?** Any line whose first column is not a space or `?`.
-- **Has unstaged changes?** Any line whose second column is `M`, `D`, or
-  similar, plus any `??` entries (untracked files).
+   - Only unstaged/untracked changes exist (nothing staged yet) → proceed with all changes. You will `git add -A` (or specific files) later, after the message is approved.
+   - Only staged changes exist → proceed with the staged changes only.
+   - Both staged and unstaged/untracked changes exist → stop and ask the user:
 
-If there is **nothing to commit at all**, stop and tell the user — do not
-create an empty commit.
+     > You have both staged and unstaged changes. Should I commit:
+     > 1. Just the staged changes, or
+     > 2. Everything (stage all + commit)?
 
----
+   Whichever they choose becomes the "commit set" for the rest of this skill.
 
-## Step 2 — Decide the Commit Scope of Work
+3. Read the diff that will be committed.
 
-There are three cases. Handle them in order:
+   - Staged only → read `git diff --staged`.
+   - Everything → read `git diff HEAD` (includes staged + unstaged tracked changes). For untracked files, list them via `git status --porcelain=v1` and read each new file's content directly.
 
-### Case A — Only unstaged/untracked changes exist (nothing staged yet)
+   Skim the diff carefully. You're looking for: the type of change, the scope (a short noun for the area touched — e.g. `parser`, `auth`, `api`; omit if the change spans many areas), whether there is a breaking change (removed/renamed public APIs, changed function signatures, dropped runtime/platform support, changed config keys, changed CLI flags, changed wire formats, etc.), and whether the body should mention *why* (non-obvious motivation, linked issue, related decision).
 
-Proceed with **all** changes. You will `git add -A` (or the specific files)
-later, after the message is approved.
+4. Draft the commit message, following Conventional Commits 1.0.0 strictly.
 
-### Case B — Only staged changes exist (nothing unstaged or untracked)
+   The format is `<type>[optional scope][!]: <description>` followed (optionally) by a blank line + body and a blank line + footer(s). Pick a type that fits the dominant change — common types are `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. Do not invent new types. For the full type table, scope rules, breaking-change marker semantics, and description/body/footer formatting, see [REFERENCE.md](REFERENCE.md). For worked messages, see [EXAMPLES.md](EXAMPLES.md).
 
-Proceed with the **staged** changes only.
+5. Present the draft for approval.
 
-### Case C — Both staged and unstaged/untracked changes exist
+   Show the user the proposed commit message exactly as it will be written, inside a fenced block. State which commit set will be committed (staged only, or everything) and a one-line rationale for the chosen type/scope (and breaking marker, if any). Then ask explicitly:
 
-**Stop and ask the user** which set to commit:
+   > Approve this message and commit? (yes / edit / cancel)
 
-> You have both staged and unstaged changes. Should I commit:
-> 1. Just the staged changes, or
-> 2. Everything (stage all + commit)?
+   Do not stage or commit until the user replies with approval. If the user asks for an edit, revise and present again. If the user cancels, stop and do not touch the working tree.
 
-Wait for an answer before continuing. Whichever they choose becomes the
-"commit set" for the rest of this skill.
+6. Stage and commit.
 
----
+   Only after explicit approval, stage based on the commit set chosen in Step 2:
 
-## Step 3 — Read the Diff That Will Be Committed
+   - Staged only → do not run `git add`. The index is already correct.
+   - Everything → run `git add -A`.
 
-Depending on the commit set chosen in Step 2:
-
-- **Staged only** → read `git diff --staged`.
-- **Everything** → read `git diff HEAD` (this includes staged + unstaged
-  tracked changes). For untracked files, list them via
-  `git status --porcelain=v1` and read each new file's content directly so the
-  message can describe them.
-
-Skim the diff carefully. You're looking for:
-
-- The **type** of change (see Step 4).
-- The **scope** — a short noun for the area touched (e.g. `parser`, `auth`,
-  `api`, a package name, a folder). If the change spans many areas, omit the
-  scope.
-- Whether there is a **breaking change** — removed/renamed public APIs,
-  changed function signatures, dropped runtime/platform support, changed
-  config keys, changed CLI flags, changed wire formats, etc.
-- Whether the body should mention **why** (non-obvious motivation, linked
-  issue, related decision).
-
----
-
-## Step 4 — Draft the Commit Message
-
-Follow the Conventional Commits 1.0.0 rules **strictly**. The format is:
-
-```
-<type>[optional scope][!]: <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-### Type
-
-Required. Lowercase noun. Pick the one that best fits the dominant change:
-
-| Type | Use for |
-|------|---------|
-| `feat` | A new feature (user-visible capability) |
-| `fix` | A bug fix |
-| `docs` | Documentation only |
-| `style` | Formatting, whitespace, missing semicolons — no code behavior change |
-| `refactor` | Code change that neither fixes a bug nor adds a feature |
-| `perf` | Performance improvement |
-| `test` | Adding or correcting tests |
-| `build` | Build system, dependencies, packaging |
-| `ci` | CI configuration and scripts |
-| `chore` | Maintenance that doesn't fit above (e.g. tooling, configs) |
-| `revert` | Reverting a previous commit |
-
-If multiple types apply, pick the one that describes the **primary** intent.
-Do **not** invent new types.
-
-### Scope (optional)
-
-A single lowercase noun in parentheses identifying the section of the codebase
-touched, e.g. `feat(parser):`. Omit if the change is broad or cross-cutting.
-
-### Breaking change marker
-
-If the commit introduces a breaking change, **either**:
-
-- Add `!` immediately before the colon: `feat(api)!: drop legacy auth`, **or**
-- Add a `BREAKING CHANGE: <description>` footer, **or**
-- Both (preferred when the description alone doesn't capture the impact).
-
-When `!` is used, `BREAKING CHANGE:` in the footer is optional.
-
-### Description
-
-Required. Comes after `: ` (colon + space). Rules:
-
-- **Imperative, present tense.** Read as a command: "add", "fix", "remove",
-  "rename" — **not** "added", "fixes", "removing".
-- **Start with a verb.** Lowercase first letter unless it's a proper noun.
-- **No trailing period.**
-- Keep the whole header line under ~72 characters when possible.
-- Be specific: `fix: handle null user in login` beats `fix: bug fix`.
-
-### Body (optional)
-
-- Separated from the description by **one blank line**.
-- Free-form paragraphs explaining **why**, not what (the diff shows what).
-- Wrap lines at ~72 characters for readability.
-- Multiple paragraphs are fine, separated by blank lines.
-
-### Footers (optional)
-
-- Separated from the body (or description, if no body) by **one blank line**.
-- One footer per line. Format: `Token: value` or `Token #value`.
-- Token rules:
-  - Use `-` in place of spaces, e.g. `Reviewed-by:`, `Co-authored-by:`,
-    `Acked-by:`, `Refs:`, `Closes:`.
-  - **Exception:** `BREAKING CHANGE` (uppercase, with a space) is allowed.
-    `BREAKING-CHANGE` is also valid and synonymous.
-- Multi-line footer values are allowed; parsing stops at the next valid
-  footer token.
-
-### Worked examples (from the spec)
-
-```
-feat: allow provided config object to extend other configs
-
-BREAKING CHANGE: `extends` key in config file is now used for extending other config files
-```
-
-```
-feat!: send an email to the customer when a product is shipped
-```
-
-```
-feat(api)!: send an email to the customer when a product is shipped
-```
-
-```
-feat!: drop support for Node 6
-
-BREAKING CHANGE: use JavaScript features not available in Node 6.
-```
-
-```
-docs: correct spelling of CHANGELOG
-```
-
-```
-feat(lang): add Polish language
-```
-
-```
-fix: prevent racing of requests
-
-Introduce a request id and a reference to latest request. Dismiss
-incoming responses other than from latest request.
-
-Remove timeouts which were used to mitigate the racing issue but are
-obsolete now.
-
-Reviewed-by: Z
-Refs: #123
-```
-
----
-
-## Step 5 — Present the Draft for Approval
-
-Show the user the proposed commit message exactly as it will be written,
-inside a fenced block. Also state:
-
-- Which commit set will be committed (staged only, or everything).
-- A one-line rationale for the chosen type/scope (and breaking marker, if
-  any).
-
-Then ask explicitly:
-
-> Approve this message and commit? (yes / edit / cancel)
-
-**Do not** stage or commit until the user replies with approval.
-
-- If the user asks for an edit, revise the message and present it again.
-- If the user cancels, stop. Do not touch the working tree.
-
----
-
-## Step 6 — Stage and Commit
-
-Only after explicit approval:
-
-1. **Stage** based on the commit set chosen in Step 2:
-   - **Staged only** → do not run `git add`. The index is already correct.
-   - **Everything** → run `git add -A`.
-2. **Commit** using a HEREDOC so multiline messages and footers render
-   correctly. Do not pass `--amend`, `--no-verify`, `--no-gpg-sign`, `-i`, or
-   any rewrite flag. Example:
+   Then commit using a HEREDOC so multiline messages and footers render correctly. Do not pass `--amend`, `--no-verify`, `--no-gpg-sign`, `-i`, or any rewrite flag.
 
    ```bash
    git commit -m "$(cat <<'EOF'
@@ -256,36 +75,8 @@ Only after explicit approval:
    )"
    ```
 
-3. Run `git status` once after the commit so the user can see the result.
+   Run `git status` once after the commit so the user can see the result.
 
----
+7. Handle errors without trying to fix them.
 
-## Step 7 — Handle Errors Without Trying to Fix Them
-
-If `git add` or `git commit` fails for any reason (pre-commit hook failure,
-nothing to commit, signing error, etc.):
-
-1. Show the **full, verbatim** stdout and stderr from the failing command to
-   the user.
-2. State plainly: "The commit failed — passing this through to you to decide
-   how to proceed."
-3. **Do not** retry, do not modify files, do not bypass hooks, do not amend,
-   do not run `git reset`.
-
-The user will decide whether to fix the underlying issue or take another path.
-
----
-
-## Hard Rules (do not violate)
-
-- ❌ Never `git push`.
-- ❌ Never `git commit --amend` or rewrite history.
-- ❌ Never skip hooks (`--no-verify`) or signing (`--no-gpg-sign`).
-- ❌ Never run destructive commands (`git reset --hard`, `git clean -f`,
-  `git checkout -- .`, branch deletion).
-- ❌ Never commit files that look like secrets (`.env`, `*.pem`, credential
-  files). If the commit set includes one, warn the user and ask before
-  proceeding.
-- ❌ Never create an empty commit.
-- ✅ Always confirm the message with the user before committing.
-- ✅ Always surface git errors verbatim and stop.
+   If `git add` or `git commit` fails for any reason (pre-commit hook failure, nothing to commit, signing error, etc.): show the full, verbatim stdout and stderr from the failing command; state plainly "The commit failed — passing this through to you to decide how to proceed."; do not retry, modify files, bypass hooks, amend, or run `git reset`. The user will decide whether to fix the underlying issue or take another path.
