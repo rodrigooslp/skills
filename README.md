@@ -38,7 +38,7 @@ write-a-prd  →  [review-prd]  →  prd-to-issues  →  [review-issues]
         ┌─────────────────────────────────────────────────┘
         ↓
 setup-workspace  →  work-on-issue  →  use-conventional-commits  →  merge-branch  →  clean-workspace
-        ↑                                                                                  │
+        ↑                                                                                  ↓
         └──────────────────────────────  repeat per issue  ────────────────────────────────┘
 ```
 
