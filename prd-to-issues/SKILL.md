@@ -99,4 +99,21 @@ This skill is invoked when the user wants to break a PRD into implementation iss
    ```
    </index-json-schema>
 
-7. Confirm completion. Once all files are written, confirm the full list of created files to the user and let them know they can invoke the `work-on-issue` skill to start working on any unblocked issue.
+7. Generate `layers.json`. After writing `index.json`, run the bundled script to compute topological levels and write `plans/<plan-name>/issues/layers.json`:
+
+   ```
+   node prd-to-issues/scripts/build-layers.mjs --index plans/<plan-name>/issues/index.json
+   ```
+
+   The script reads the index, groups issues into dependency layers (level 0 = no blockers, level N = all blockers are in levels < N), and writes `layers.json` next to `index.json`. The output looks like:
+
+   ```json
+   [
+     { "level": 0, "issues": ["001", "007"] },
+     { "level": 1, "issues": ["002", "004"] }
+   ]
+   ```
+
+   If the script reports a cycle error, surface it to the user and ask them to fix the dependency relationships before proceeding.
+
+8. Confirm completion. Once all files are written, confirm the full list of created files to the user and let them know they can invoke the `work-on-issue` skill to start working on any unblocked issue.
