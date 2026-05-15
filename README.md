@@ -27,6 +27,7 @@ Each skill is a self-contained markdown prompt — portable across any AI coding
 | Skill | Purpose |
 |-------|---------|
 | [work-on-issue](work-on-issue/SKILL.md) | Implement a single assigned issue end-to-end, staying strictly in scope and enforcing test/typecheck/lint/build gates. |
+| [review-work](review-work/SKILL.md) | Validate work against an issue's acceptance criteria via a read-only validator subagent, then autonomously close any gaps, commit leftover work, and mark the issue done. |
 | [commit-changes](commit-changes/SKILL.md) | Inspect uncommitted work, draft a Conventional Commits 1.0.0–compliant message, confirm with the user, then stage and commit. |
 | [merge-branch](merge-branch/SKILL.md) | Merge an issue branch into the current branch via `--no-ff`, remove its worktree, and delete the merged branch locally. |
 
@@ -37,18 +38,19 @@ write-a-prd  →  [review-prd]  →  prd-to-issues  →  [review-issues]
                                                           ↓
         ┌─────────────────────────────────────────────────┘
         ↓
-setup-workspace  →  work-on-issue  →  commit-changes  →  merge-branch  →  [clean-workspace]
-        ↑                                                                                  ↓
-        └──────────────────────────────  repeat per issue  ────────────────────────────────┘
+setup-workspace  →  work-on-issue  →  [review-work]  →  commit-changes  →  merge-branch  →  [clean-workspace]
+        ↑                                                                                                    ↓
+        └─────────────────────────────────────  repeat per issue  ───────────────────────────────────────────┘
 ```
 
 1. **Plan** — `write-a-prd` interviews you about the problem and produces `plans/<plan-name>/README.md`. Optionally run `review-prd` to stress-test it before slicing.
 2. **Slice** — `prd-to-issues` breaks the PRD into vertical slices and writes one markdown file per issue into `plans/<plan-name>/issues/`, plus an `index.json` tracker. Optionally run `review-issues` to validate coverage and sizing.
 3. **Set up** — `setup-workspace` picks the next unblocked issue, creates a worktree at `./worktrees/<plan>/<id>` on a fresh branch, and installs dependencies.
 4. **Implement** — `work-on-issue` reads the PRD and prior progress notes for context, implements only the assigned slice, runs the project's quality gates, and marks the issue done in `index.json`.
-5. **Commit** — `commit-changes` drafts a spec-compliant commit message, confirms it, then stages and commits.
-6. **Merge** — `merge-branch` merges the issue branch back into the parent with `--no-ff`, removes the worktree, and deletes the local branch.
-7. **Clean up** — `clean-workspace` sweeps any leftover done-but-not-merged worktrees.
+5. **Review (optional)** — `review-work` spawns a read-only validator subagent to check the implementation against the issue's acceptance criteria, then autonomously closes any gaps it finds, commits leftover work, and (if not already) marks the issue done.
+6. **Commit** — `commit-changes` drafts a spec-compliant commit message, confirms it, then stages and commits.
+7. **Merge** — `merge-branch` merges the issue branch back into the parent with `--no-ff`, removes the worktree, and deletes the local branch.
+8. **Clean up** — `clean-workspace` sweeps any leftover done-but-not-merged worktrees.
 
 Each issue is a thin vertical slice that cuts through every layer (schema, API, UI, tests) rather than a horizontal slice of one layer. The numbering (`001-…`, `002-…`) encodes dependency order so agents can pick up any unblocked issue in parallel.
 
@@ -89,6 +91,7 @@ A few skills include extended docs alongside `SKILL.md`:
 
 - [commit-changes/REFERENCE.md](commit-changes/REFERENCE.md) — the full Conventional Commits 1.0.0 grammar.
 - [commit-changes/EXAMPLES.md](commit-changes/EXAMPLES.md) — worked commit messages.
+- [review-work/REFERENCE.md](review-work/REFERENCE.md) — validator subagent prompt template.
 
 Install the skills with one command:
 
