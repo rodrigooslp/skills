@@ -13,7 +13,7 @@ Each skill is a self-contained markdown prompt — portable across any AI coding
 | [write-a-prd](write-a-prd/SKILL.md) | Interview the user, explore the codebase, and write a Product Requirements Document to `plans/<plan-name>/README.md`. |
 | [review-prd](review-prd/SKILL.md) | Review a PRD by spawning two subagents (product/design gaps and implementability), consolidating their feedback into actionable edits. |
 | [prd-to-issues](prd-to-issues/SKILL.md) | Break a PRD into tracer-bullet vertical slices, saved as numbered issue files under `plans/<plan-name>/issues/`. |
-| [review-issues](review-issues/SKILL.md) | Review an issue set with two subagents (implementor review and PRD-coverage review), consolidating feedback into actionable edits. |
+| [review-issues](review-issues/SKILL.md) | Review an issue set with two subagents (implementer review and PRD-coverage review), consolidating feedback into actionable edits. |
 
 ### Workspace
 
@@ -37,7 +37,7 @@ write-a-prd  →  [review-prd]  →  prd-to-issues  →  [review-issues]
                                                           ↓
         ┌─────────────────────────────────────────────────┘
         ↓
-setup-workspace  →  work-on-issue  →  commit-changes  →  merge-branch  →  clean-workspace
+setup-workspace  →  work-on-issue  →  commit-changes  →  merge-branch  →  [clean-workspace]
         ↑                                                                                  ↓
         └──────────────────────────────  repeat per issue  ────────────────────────────────┘
 ```

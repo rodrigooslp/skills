@@ -1,6 +1,6 @@
 ---
 name: review-issues
-description: Review an issue set by spawning two subagents (one for implementor review, one for PRD-coverage review), consolidating their feedback into actionable items. Use when the user wants to review issues, validate the issue breakdown, check issues against the parent PRD, or mentions "review issues".
+description: Review an issue set by spawning two subagents (one for implementer review, one for PRD-coverage review), consolidating their feedback into actionable items. Use when the user wants to review issues, validate the issue breakdown, check issues against the parent PRD, or mentions "review issues".
 ---
 
 This skill is invoked when the user wants to review an issue set against its parent PRD. You spawn two specialized subagents for complementary perspectives, then consolidate their feedback into actionable edits.
@@ -9,9 +9,9 @@ This skill is invoked when the user wants to review an issue set against its par
 
 2. Read all materials: `plans/<plan-name>/README.md` (the PRD), `plans/<plan-name>/issues/index.json`, every `plans/<plan-name>/issues/*.md` file, and the effort rubric at [../prd-to-issues/REFERENCE.md](../prd-to-issues/REFERENCE.md) (sibling skill, single source of truth — do not duplicate).
 
-3. Spawn the Implementor Review subagent with the following instructions:
+3. Spawn the Implementer Review subagent with the following instructions:
 
-   <implementor-review-prompt>
+   <implementer-review-prompt>
    You are the engineer who will implement these issues one-by-one on isolated branches. Review the issue set critically:
 
    1. Are inter-issue dependencies correct and complete? Flag any missing or circular deps.
@@ -21,18 +21,18 @@ This skill is invoked when the user wants to review an issue set against its par
 
    Be specific: cite issue numbers (e.g. "Issue 007") and explain exactly what is wrong.
 
-   Effort rubric:
-
+   <effort-rubric>
    {contents of ../prd-to-issues/REFERENCE.md}
+   </effort-rubric>
 
-   Issues:
-
+   <issues>
    {contents of all issue .md files, separated by ---}
+   </issues>
 
-   index.json:
-
+   <index-json>
    {contents of index.json}
-   </implementor-review-prompt>
+   </index-json>
+   </implementer-review-prompt>
 
 4. Spawn the PRD-Coverage Review subagent with the following instructions:
 
@@ -47,20 +47,20 @@ This skill is invoked when the user wants to review an issue set against its par
 
    Be specific: cite issue numbers and PRD sections.
 
-   PRD:
-
+   <prd>
    {contents of README.md}
+   </prd>
 
-   Issues:
-
+   <issues>
    {contents of all issue .md files, separated by ---}
+   </issues>
    </coverage-review-prompt>
 
 5. Consolidate findings. Take both subagent responses and:
 
    - Group findings by theme (e.g. "Dependencies", "Scope / Sizing", "Coverage Gaps", "Ambiguities", "Splitting / Merging").
    - Remove duplicates where both subagents raised the same concern.
-   - Note the source perspective in brackets after each item, e.g. `[implementor]`, `[coverage]`, or `[both]`.
+   - Note the source perspective in brackets after each item, e.g. `[implementer]`, `[coverage]`, or `[both]`.
    - Present as a single numbered list to the user.
 
 6. Ask which items to act on. Present the consolidated list and ask the user which items (by number) to apply. The user may select all, some, or none.

@@ -23,34 +23,34 @@ This skill is invoked when the user wants to review a PRD before breaking it int
 
    Be specific and cite the relevant section. Vague concerns like "needs more detail" without saying what detail is missing are not useful.
 
-   PRD:
-
+   <prd>
    {contents of README.md}
+   </prd>
    </product-design-review-prompt>
 
-4. Spawn the Implementor Review subagent with the following instructions (include `AGENTS.md` as system context if it exists):
+4. Spawn the Implementer Review subagent with the following instructions (include `AGENTS.md` as system context if it exists):
 
-   <implementor-review-prompt>
+   <implementer-review-prompt>
    You are the engineer who will implement this PRD. You need to turn this spec into working code. Review it and flag anything that would block you:
 
    1. Missing naming conventions — what should things be called in code?
    2. Ambiguous interfaces — where two modules meet, what's the contract?
-   3. Undefined behaviour — what happens in edge cases the PRD doesn't address?
+   3. Undefined behavior — what happens in edge cases the PRD doesn't address?
    4. Unimplementable requirements — anything that's technically infeasible or contradictory?
    5. Missing sequencing — are there implicit dependencies between features that aren't called out?
 
    Be specific: quote the problematic section and explain what's wrong and what you'd need clarified.
 
-   PRD:
-
+   <prd>
    {contents of README.md}
-   </implementor-review-prompt>
+   </prd>
+   </implementer-review-prompt>
 
 5. Consolidate findings. Take both subagent responses and:
 
    - Group findings by theme (e.g. "Gaps", "Contradictions", "Edge Cases", "Interfaces", "Scope", "Sequencing").
    - Remove duplicates where both subagents raised the same concern.
-   - Note the source perspective in brackets after each item, e.g. `[product/design]`, `[implementor]`, or `[both]`.
+   - Note the source perspective in brackets after each item, e.g. `[product/design]`, `[implementer]`, or `[both]`.
    - Present as a single numbered list to the user.
 
 6. Ask which items to act on. Present the consolidated list and ask: "Which of these do you want me to act on? (reply with numbers, "all", or "none")"
