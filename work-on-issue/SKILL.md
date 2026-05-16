@@ -80,7 +80,13 @@ plans/
 
    Run `node <SKILL_DIR>/scripts/mark-done.mjs --plan <plan> --id <id>`. The script sets the entry's `status` to `"done"` in `plans/<plan>/issues/index.json`, preserves the file's original single-line-per-entry formatting, validates by re-parsing after writing, and is idempotent. If the script exits non-zero, stop and surface the error before producing the completion report. The issue is not complete until this script succeeds.
 
-8. Produce the completion report.
+8. Self-review with the `review-work` skill (mandatory).
+
+   Before producing the completion report, invoke the [`review-work`](../review-work/SKILL.md) skill on the same plan and issue you just worked on. It spawns a read-only validator subagent that checks the diff against the issue's acceptance criteria and produces a structured report — **you are the one who acts on that report**, closing any gaps the validator identifies (implementing missed criteria, fixing quality smells, committing leftover work, re-running quality gates, and re-marking the issue done if needed).
+
+   Pass the resolved `--plan` and `--id` from Step 1 so the skill targets this exact issue. Treat any changes you make in response to the validator's report as part of this issue's delivery and reflect them in the completion report in Step 9. If you cannot close a gap in scope, surface the blocker and stop before the completion report.
+
+9. Produce the completion report.
 
    <completion-report>
    ## Issue <NUMBER> — Completion Report
@@ -95,6 +101,9 @@ plans/
 
    **index.json updated:** ✅ Yes (status set to "done") / ❌ No (explain)
 
+   **Review-work actions:**
+   - <bullet per action taken in response to the validator, or a single "No gaps found" bullet — keep each bullet short>
+
    **Out-of-scope observations:**
    - <anything noted for other issues, or "None">
 
@@ -104,7 +113,7 @@ plans/
 
    `index.json updated` must be ✅ Yes. If it isn't, the issue is not complete — go back to Step 7.
 
-9. Update the progress log (optional but encouraged).
+10. Update the progress log (optional but encouraged).
 
    **Append** a short entry to the very end of `plans/<plan>/progress.md` — never between existing entries, never at the top. The log is chronological; inserting in the middle breaks the timeline for the next agent. If `progress.md` does not exist, skip this step.
 
