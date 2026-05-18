@@ -13,7 +13,6 @@ Hard rules — never violate:
 - Never force-delete (`git branch -D`) or `--force` a worktree removal without explicit user approval.
 - Never delete the branch before removing its worktree — `git branch -d` refuses a branch that is checked out elsewhere.
 - Never take a raw branch name from the prompt — always resolve it from `plans/<plan>/issues/index.json` via the helper script.
-- Always ask the user for explicit approval before running the merge.
 - When resolving conflicts autonomously, never guess at semantic intent — if you cannot tell which side is correct from surrounding context, stop and surface the specific conflict to the user.
 
 1. Resolve the plan and issue.
@@ -26,19 +25,17 @@ Hard rules — never violate:
 
    Run `git rev-parse --abbrev-ref HEAD` (store as `<current>`; stop if HEAD is detached), `git rev-parse --verify <slug>` (ensure the branch exists locally), and `git status --porcelain=v1` (stop if not empty).
 
-3. Summarise and ask for approval.
+3. Summarise and proceed.
 
    Run, in parallel: `git log <current>..<slug> --oneline` (incoming commits), `git diff --stat <current>...<slug>` (three-dot file stat), `git log <slug>..<current> --oneline` (commits on current ahead of slug), and `git worktree list` (to detect `<worktreePath>`).
 
    If `git log <current>..<slug>` is empty, stop — nothing to merge.
 
-   Present a summary: direction (merging `<slug>` into `<current>`), incoming commits, file stat, one line about divergence, and whether a worktree at `<worktreePath>` will be removed after the merge.
+   Present a short summary as information (no confirmation needed): direction (merging `<slug>` into `<current>`), incoming commits, file stat, one line about divergence, and whether a worktree at `<worktreePath>` will be removed after the merge.
 
-   Ask, verbatim, adapting the worktree clause:
+   Then announce the action, verbatim, adapting the worktree clause:
 
-   > Proceed with `git merge --no-ff <slug>` into `<current>`, then [remove the worktree at `<worktreePath>` and] delete branch `<slug>` locally? (yes / no)
-
-   Wait for explicit approval. Anything ambiguous → ask again.
+   > Proceeding with `git merge --no-ff <slug>` into `<current>`, then [remove the worktree at `<worktreePath>` and] delete branch `<slug>` locally.
 
 4. Merge.
 

@@ -51,8 +51,12 @@ This skill is invoked when the user wants to review a PRD before breaking it int
    - Group findings by theme (e.g. "Gaps", "Contradictions", "Edge Cases", "Interfaces", "Scope", "Sequencing").
    - Remove duplicates where both subagents raised the same concern.
    - Note the source perspective in brackets after each item, e.g. `[product/design]`, `[implementer]`, or `[both]`.
-   - Present as a single numbered list to the user.
 
-6. Ask which items to act on. Present the consolidated list and ask: "Which of these do you want me to act on? (reply with numbers, "all", or "none")"
+6. Triage findings into two buckets:
 
-7. Apply confirmed changes. For each confirmed item, update `plans/<plan-name>/README.md` in place — adding missing details, resolving contradictions, clarifying edge cases, etc. Confirm all changes made to the user.
+   - **Auto-apply** — items with an obvious solution or a single clearly-better resolution (e.g. a missing acceptance criterion whose content is dictated by the rest of the PRD, an obvious naming/terminology inconsistency, a clear typo, an edge case with a single sensible default, a contradiction where one side is clearly the intended behaviour). Resolve these yourself with no user intervention.
+   - **Surface to user** — items where there is no clear better option, where multiple reasonable resolutions exist, or where the change is critical/large enough to warrant input (e.g. a real product/scope decision, a contradiction that could be resolved either way, a gap whose fix changes the shape of the feature). Present these as a short numbered list and ask which to act on.
+
+7. Apply changes. For each auto-apply item and each user-confirmed item, update `plans/<plan-name>/README.md` in place — adding missing details, resolving contradictions, clarifying edge cases, etc.
+
+8. Report briefly. Give the user a short summary of what you addressed on your own — one bullet per change, just enough that they know what happened. Do not be descriptive or exhaustive.
