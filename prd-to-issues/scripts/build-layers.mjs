@@ -72,5 +72,8 @@ const tasks = JSON.parse(readFileSync(values.index, "utf8"));
 const layers = buildLayers(tasks);
 
 const outPath = join(dirname(values.index), "layers.json");
-writeFileSync(outPath, JSON.stringify(layers, null, 2) + "\n");
+const body = layers
+  .map((l) => `  { "level": ${l.level}, "issues": [${l.issues.map((i) => JSON.stringify(i)).join(", ")}] }`)
+  .join(",\n");
+writeFileSync(outPath, `[\n${body}\n]\n`);
 process.stdout.write(`${outPath}\n`);
