@@ -34,6 +34,6 @@ Hard rules — never violate:
 
 4. Install and copy env files.
 
-   Run `pnpm --dir worktrees/<plan>/<id> install`, then `node <SKILL_DIR>/scripts/copy-env-files.mjs --dest worktrees/<plan>/<id>`. If `pnpm install` fails, leave the worktree in place and stop. If `copy-env-files` reports `0 .env file(s) copied`, that is fine — say so in the final report.
+   Run `pnpm --dir worktrees/<plan>/<id> install`, then `node <SKILL_DIR>/scripts/copy-env-files.mjs --dest worktrees/<plan>/<id>`. The script copies `.env*` files and, if present, `next-env.d.ts`. If `pnpm install` fails, leave the worktree in place and stop. If `copy-env-files` reports `0 .env file(s) copied`, that is fine — say so in the final report.
 
-5. Report in 3–5 lines: the plan and issue picked, the worktree path, the branch (new from `<current>` vs. attached to existing), the pnpm result, and the `.env` file count.
+5. Report in 3–5 lines: the plan and issue picked, the worktree path, the branch (new from `<current>` vs. attached to existing), the pnpm result, and the `.env` file count (mention `next-env.d.ts` if it was copied).

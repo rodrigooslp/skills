@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Copy every `.env*` file from the current working directory into a target
- * directory. Skips directories that happen to be named `.env.something`.
+ * directory, plus `next-env.d.ts` if present. Skips directories that happen
+ * to be named `.env.something`.
  *
  * Usage:
  *   node copy-env-files.mjs --dest <path>
@@ -42,3 +43,8 @@ for (const f of readdirSync(".")) {
   copied++;
 }
 process.stdout.write(`${copied} .env file(s) copied\n`);
+
+if (existsSync("next-env.d.ts") && statSync("next-env.d.ts").isFile()) {
+  copyFileSync("next-env.d.ts", join(values.dest, "next-env.d.ts"));
+  process.stdout.write("Copied next-env.d.ts\n");
+}
