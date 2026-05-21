@@ -70,7 +70,7 @@ plans/
 
 6. Quality gates.
 
-   Run whichever scripts exist in `package.json`, in this order, using the package manager from Step 2: `<pm> run test`, `<pm> run typecheck`, `<pm> run lint`, `<pm> run build`. All present scripts must pass with zero errors. On failure: fix the root cause (in scope), re-run from the failing step. If a fix requires out-of-scope changes, document the blocker and stop — do not hack around it.
+   Run whichever scripts exist in `package.json`, in this order, using the package manager from Step 2: `<pm> run typecheck`, `<pm> run lint`, `<pm> run test:related`. All present scripts must pass with zero errors. On failure: fix the root cause (in scope), re-run from the failing step. If a fix requires out-of-scope changes, document the blocker and stop — do not hack around it.
 
    Any fix required by a failing gate is its own commit (`fix:` or `refactor:` as appropriate). After the final gate passes, the working tree must be clean.
 
