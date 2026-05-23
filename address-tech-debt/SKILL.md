@@ -55,11 +55,11 @@ This skill runs **after** every issue in a plan is merged and **before** the pla
    - &lt;one-line description&gt; → opened follow-up &lt;path&gt; (only when the fix was too large for this pass)
 
    **Verified (guidance already complied with, no change needed):**
-   - &lt;bullet paraphrased&gt; → &lt;file:line where the check landed&gt;
+   - &lt;short summary of the bullet&gt; → &lt;file:line where the check landed&gt;
 
    **Needs your input:**
 
-   ### &lt;bullet text verbatim, including its issue heading&gt;
+   ### Issue &lt;N&gt; — &lt;short summary of the bullet&gt;
    - **Situation:** &lt;one-sentence read of what's at stake&gt;
    - **Options:**
      1. &lt;option A&gt;
@@ -71,4 +71,4 @@ This skill runs **after** every issue in a plan is merged and **before** the pla
    **Status:** ✅ Ready to delete plan folder / ⚠️ Pending your input on &lt;N&gt; item(s)
    </action-report>
 
-   One bullet per fix. Every open question gets verbatim bullet text + situation + options + recommendation — never just "what should I do?". The status line tells the user whether the plan folder is safe to delete now.
+   Summarise every bullet — never paste the bullet verbatim, even when it's the heading of an open question. The user can re-read `progress.md` for the full text. Every open question gets a summary + situation + options + recommendation — never just "what should I do?". The status line tells the user whether the plan folder is safe to delete now.
