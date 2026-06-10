@@ -7,7 +7,7 @@ This skill is invoked when the user wants to review a PRD before breaking it int
 
 1. Locate the plan. The plan lives at `plans/<plan-name>/`. If the user specified the plan name, use it. Otherwise list all folders inside `plans/`: if there is exactly one, use it automatically; if there are multiple, ask the user which plan to review.
 
-2. Read materials. Read `plans/<plan-name>/README.md` (the PRD) and `AGENTS.md` at the repo root (if it exists — used as system prompt context).
+2. Read materials. Read `plans/<plan-name>/PRD.md` (the PRD) and `AGENTS.md` at the repo root (if it exists — used as system prompt context).
 
 3. Spawn the Product/Design Review subagent with the following instructions (include `AGENTS.md` as system context if it exists):
 
@@ -24,7 +24,7 @@ This skill is invoked when the user wants to review a PRD before breaking it int
    Be specific and cite the relevant section. Vague concerns like "needs more detail" without saying what detail is missing are not useful.
 
    <prd>
-   {contents of README.md}
+   {contents of PRD.md}
    </prd>
    </product-design-review-prompt>
 
@@ -42,7 +42,7 @@ This skill is invoked when the user wants to review a PRD before breaking it int
    Be specific: quote the problematic section and explain what's wrong and what you'd need clarified.
 
    <prd>
-   {contents of README.md}
+   {contents of PRD.md}
    </prd>
    </implementer-review-prompt>
 
@@ -57,6 +57,6 @@ This skill is invoked when the user wants to review a PRD before breaking it int
    - **Auto-apply** — items with an obvious solution or a single clearly-better resolution (e.g. a missing acceptance criterion whose content is dictated by the rest of the PRD, an obvious naming/terminology inconsistency, a clear typo, an edge case with a single sensible default, a contradiction where one side is clearly the intended behaviour). Resolve these yourself with no user intervention.
    - **Surface to user** — items where there is no clear better option, where multiple reasonable resolutions exist, or where the change is critical/large enough to warrant input (e.g. a real product/scope decision, a contradiction that could be resolved either way, a gap whose fix changes the shape of the feature). Present these as a short numbered list and ask which to act on.
 
-7. Apply changes. For each auto-apply item and each user-confirmed item, update `plans/<plan-name>/README.md` in place — adding missing details, resolving contradictions, clarifying edge cases, etc.
+7. Apply changes. For each auto-apply item and each user-confirmed item, update `plans/<plan-name>/PRD.md` in place — adding missing details, resolving contradictions, clarifying edge cases, etc.
 
 8. Report briefly. Give the user a short summary of what you addressed on your own — one bullet per change, just enough that they know what happened. Do not be descriptive or exhaustive.

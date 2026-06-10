@@ -9,7 +9,7 @@ This skill runs **after** every issue in a plan is merged and **before** the pla
 
    Run `node <SKILL_DIR>/../work-on-issue/scripts/resolve-plan.mjs [--plan <name>]`. Stdout = plan name; exit 2 with a list = ask the user which and re-run with `--plan`.
 
-   Read `plans/<plan>/progress.md`. If the file does not exist, stop — there is nothing to address. Also read `plans/<plan>/README.md` for spec context only.
+   Read `plans/<plan>/progress.md`. If the file does not exist, stop — there is nothing to address. Also read `plans/<plan>/PRD.md` for spec context only.
 
 2. Inventory every bullet.
 

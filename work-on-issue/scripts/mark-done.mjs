@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Mark an issue as "done" in `plans/<plan>/issues/index.json`.
+ * Mark an issue as "done" in `plans/<plan>/issues.json`.
  *
  * Usage:
  *   node mark-done.mjs --plan <name> --id <id>
@@ -43,10 +43,10 @@ if (!values.id) fail("Missing required --id <id>.");
 let id = values.id;
 if (/^\d+$/.test(id)) id = id.padStart(3, "0");
 
-const indexPath = join("plans", values.plan, "issues", "index.json");
-if (!existsSync(indexPath)) fail(`Index file not found: ${indexPath}`);
+const issuesPath = join("plans", values.plan, "issues.json");
+if (!existsSync(issuesPath)) fail(`Index file not found: ${issuesPath}`);
 
-const raw = readFileSync(indexPath, "utf8");
+const raw = readFileSync(issuesPath, "utf8");
 const hadBom = raw.charCodeAt(0) === 0xfeff;
 const stripped = hadBom ? raw.slice(1) : raw;
 
@@ -54,14 +54,14 @@ let entries;
 try {
   entries = JSON.parse(stripped);
 } catch (err) {
-  fail(`Failed to parse ${indexPath} as JSON: ${err.message}`);
+  fail(`Failed to parse ${issuesPath} as JSON: ${err.message}`);
 }
-if (!Array.isArray(entries)) fail(`${indexPath} must contain a JSON array.`);
+if (!Array.isArray(entries)) fail(`${issuesPath} must contain a JSON array.`);
 
 const entry = entries.find((e) => e?.id === id);
 if (!entry) {
   const available = entries.map((e) => e?.id).filter(Boolean).join(", ");
-  fail(`No entry with id "${id}" in ${indexPath}. Available ids: ${available}`);
+  fail(`No entry with id "${id}" in ${issuesPath}. Available ids: ${available}`);
 }
 
 if (entry.status === "done") {
@@ -92,22 +92,22 @@ if (replaced) {
   reformatted = true;
 }
 
-writeFileSync(indexPath, (hadBom ? "﻿" : "") + newContent, "utf8");
+writeFileSync(issuesPath, (hadBom ? "﻿" : "") + newContent, "utf8");
 
 // Verify the write took effect.
 let verifyEntries;
 try {
-  const verifyRaw = readFileSync(indexPath, "utf8").replace(/^﻿/, "");
+  const verifyRaw = readFileSync(issuesPath, "utf8").replace(/^﻿/, "");
   verifyEntries = JSON.parse(verifyRaw);
 } catch (err) {
-  fail(`Wrote ${indexPath} but it no longer parses as JSON: ${err.message}`);
+  fail(`Wrote ${issuesPath} but it no longer parses as JSON: ${err.message}`);
 }
 const verifyEntry = verifyEntries.find((e) => e?.id === id);
 if (verifyEntry?.status !== "done") {
-  fail(`Wrote ${indexPath} but the entry for "${id}" still does not report "done".`);
+  fail(`Wrote ${issuesPath} but the entry for "${id}" still does not report "done".`);
 }
 
 const suffix = reformatted
   ? " (file was reformatted because the entry spanned multiple lines)"
   : "";
-process.stdout.write(`Marked ${id} (${entry.slug}) as "done" in ${indexPath}${suffix}\n`);
+process.stdout.write(`Marked ${id} (${entry.slug}) as "done" in ${issuesPath}${suffix}\n`);

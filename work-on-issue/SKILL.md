@@ -10,10 +10,10 @@ Folder convention:
 ```
 plans/
 └── <plan-name>/
-    ├── README.md       ← spec / requirements for this plan
+    ├── PRD.md          ← spec / requirements for this plan
     ├── progress.md     ← agent handoff notes (optional)
+    ├── issues.json     ← issue tracker
     └── issues/
-        ├── index.json  ← issue tracker
         ├── 001-some-feature.md
         ├── 002-another-task.md
         └── ...
@@ -78,7 +78,7 @@ plans/
 
    Before running the script, verify the working tree is clean (`git status --porcelain=v1` empty). If it isn't, you missed a commit — handle it first.
 
-   Run `node <SKILL_DIR>/scripts/mark-done.mjs --plan <plan> --id <id>`. The script sets the entry's `status` to `"done"` in `plans/<plan>/issues/index.json`, preserves the file's original single-line-per-entry formatting, validates by re-parsing after writing, and is idempotent. If the script exits non-zero, stop and surface the error before producing the completion report. The issue is not complete until this script succeeds.
+   Run `node <SKILL_DIR>/scripts/mark-done.mjs --plan <plan> --id <id>`. The script sets the entry's `status` to `"done"` in `plans/<plan>/issues.json`, preserves the file's original single-line-per-entry formatting, validates by re-parsing after writing, and is idempotent. If the script exits non-zero, stop and surface the error before producing the completion report. The issue is not complete until this script succeeds.
 
 8. Self-review with the `review-work` skill (mandatory).
 
@@ -99,7 +99,7 @@ plans/
    **Quality gates:**
    - <command> — PASS / FAIL
 
-   **index.json updated:** ✅ Yes (status set to "done") / ❌ No (explain)
+   **issues.json updated:** ✅ Yes (status set to "done") / ❌ No (explain)
 
    **Review-work actions:**
    - <bullet per action taken in response to the validator, or a single "No gaps found" bullet — keep each bullet short>
@@ -111,7 +111,7 @@ plans/
    - <key files/areas explicitly left unchanged>
    </completion-report>
 
-   `index.json updated` must be ✅ Yes. If it isn't, the issue is not complete — go back to Step 7.
+   `issues.json updated` must be ✅ Yes. If it isn't, the issue is not complete — go back to Step 7.
 
 10. Update the progress log (optional but encouraged).
 

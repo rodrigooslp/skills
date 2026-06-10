@@ -22,10 +22,10 @@ Check with the user that these modules match their expectations. Check with the 
 If the user hasn't provided a plan name, propose one derived from the problem and solution you've just discussed (e.g. `auth-revamp`, `onboarding-flow`) and ask them to confirm or suggest a different one. Then write the PRD to:
 
 ```
-plans/<plan-name>/README.md
+plans/<plan-name>/PRD.md
 ```
 
-Creating the folder if it doesn't exist. Do not create `progress.md` or the `issues/` folder — those are created by the `prd-to-issues` skill.
+Creating the folder if it doesn't exist. Do not create `progress.md`, the `issues/` folder, or `issues.json` — those are created by the `prd-to-issues` skill.
 
 <prd-template>
 

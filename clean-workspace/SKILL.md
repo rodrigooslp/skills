@@ -1,6 +1,6 @@
 ---
 name: clean-workspace
-description: Remove finished worktrees and their companion branches for issues already marked "done" in a plan's `issues/index.json`. Use when the user asks to clean up worktrees, tear down dev environments for completed issues, or "clean up the worktrees for the auth plan".
+description: Remove finished worktrees and their companion branches for issues already marked "done" in a plan's `issues.json`. Use when the user asks to clean up worktrees, tear down dev environments for completed issues, or "clean up the worktrees for the auth plan".
 ---
 
 This skill is invoked when the user wants to remove worktrees for issues already marked `"done"`. Helper scripts under `<SKILL_DIR>/scripts/` build the candidate list; you run the git commands and report at the end. `<SKILL_DIR>` is the directory containing this `SKILL.md`.
@@ -8,8 +8,8 @@ This skill is invoked when the user wants to remove worktrees for issues already
 Hard rules — never violate:
 
 - Never `--force` (`git worktree remove --force`, `git branch -D`) without explicit user approval.
-- Never touch a worktree whose issue is not `"done"` in `index.json`.
-- Never edit `plans/<plan>/issues/index.json`.
+- Never touch a worktree whose issue is not `"done"` in `issues.json`.
+- Never edit `plans/<plan>/issues.json`.
 - Never delete the worktree directory with a filesystem command — go through `git worktree remove`.
 - Never abort the whole loop on a single candidate's failure — skip that one, record why, continue with the rest.
 - Always use forward slashes in paths.

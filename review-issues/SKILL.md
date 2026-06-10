@@ -7,7 +7,7 @@ This skill is invoked when the user wants to review an issue set against its par
 
 1. Locate the plan. The plan lives at `plans/<plan-name>/`. If the user specified the plan name, use it. Otherwise list all folders inside `plans/`: if there is exactly one, use it automatically; if there are multiple, ask the user which plan to review.
 
-2. Read all materials: `plans/<plan-name>/README.md` (the PRD), `plans/<plan-name>/issues/index.json`, every `plans/<plan-name>/issues/*.md` file, and the effort rubric at [../prd-to-issues/REFERENCE.md](../prd-to-issues/REFERENCE.md) (sibling skill, single source of truth — do not duplicate).
+2. Read all materials: `plans/<plan-name>/PRD.md` (the PRD), `plans/<plan-name>/issues.json`, every `plans/<plan-name>/issues/*.md` file, and the effort rubric at [../prd-to-issues/REFERENCE.md](../prd-to-issues/REFERENCE.md) (sibling skill, single source of truth — do not duplicate).
 
 3. Spawn the Implementer Review subagent with the following instructions:
 
@@ -29,9 +29,9 @@ This skill is invoked when the user wants to review an issue set against its par
    {contents of all issue .md files, separated by ---}
    </issues>
 
-   <index-json>
-   {contents of index.json}
-   </index-json>
+   <issues-json>
+   {contents of issues.json}
+   </issues-json>
    </implementer-review-prompt>
 
 4. Spawn the PRD-Coverage Review subagent with the following instructions:
@@ -48,7 +48,7 @@ This skill is invoked when the user wants to review an issue set against its par
    Be specific: cite issue numbers and PRD sections.
 
    <prd>
-   {contents of README.md}
+   {contents of PRD.md}
    </prd>
 
    <issues>
@@ -67,6 +67,6 @@ This skill is invoked when the user wants to review an issue set against its par
    - **Auto-apply** — items with an obvious solution or a single clearly-better resolution (e.g. a missing dependency that is clearly required, an effort level that is plainly miscategorised against the rubric, a typo or naming inconsistency, a small split where the boundary is obvious, a coverage gap whose fix is dictated by the PRD). Resolve these yourself with no user intervention.
    - **Surface to user** — items where there is no clear better option, where multiple reasonable resolutions exist, or where the change is critical/large enough to warrant input (e.g. splitting an issue across two viable boundaries, a coverage gap whose resolution requires a product decision, a contradiction between PRD and issues that could be resolved either way). Present these as a short numbered list and ask which to act on.
 
-7. Apply changes. For each auto-apply item and each user-confirmed item, update the affected issue `.md` files (edit content, acceptance criteria, dependencies, etc.) and `plans/<plan-name>/issues/index.json` (update deps, add/remove entries as needed). Do NOT edit `plans/<plan-name>/README.md`.
+7. Apply changes. For each auto-apply item and each user-confirmed item, update the affected issue `.md` files (edit content, acceptance criteria, dependencies, etc.) and `plans/<plan-name>/issues.json` (update deps, add/remove entries as needed). Do NOT edit `plans/<plan-name>/PRD.md`.
 
 8. Report briefly. Give the user a short summary of what you addressed on your own — one bullet per change, just enough that they know what happened. Do not be descriptive or exhaustive.

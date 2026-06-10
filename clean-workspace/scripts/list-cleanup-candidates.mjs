@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * For a given plan, list cleanup candidates — issues whose `status` is
- * "done" in `plans/<plan>/issues/index.json` AND whose `id` exists as a
+ * "done" in `plans/<plan>/issues.json` AND whose `id` exists as a
  * subfolder of `worktrees/<plan>/`.
  *
  * Usage:
@@ -34,8 +34,8 @@ function fail(msg, code = 1) {
 if (!values.plan) fail("Missing required --plan <name>.");
 const plan = values.plan;
 
-const indexPath = join("plans", plan, "issues", "index.json");
-if (!existsSync(indexPath)) fail(`Index file not found: ${indexPath}`);
+const issuesPath = join("plans", plan, "issues.json");
+if (!existsSync(issuesPath)) fail(`Index file not found: ${issuesPath}`);
 
 function readJson(path) {
   // Strip a UTF-8 BOM if present — PowerShell `Out-File -Encoding utf8` and a
@@ -45,17 +45,17 @@ function readJson(path) {
 
 let entries;
 try {
-  entries = readJson(indexPath);
+  entries = readJson(issuesPath);
 } catch (err) {
-  fail(`Failed to parse ${indexPath} as JSON: ${err.message}`);
+  fail(`Failed to parse ${issuesPath} as JSON: ${err.message}`);
 }
-if (!Array.isArray(entries)) fail(`${indexPath} must contain a JSON array.`);
+if (!Array.isArray(entries)) fail(`${issuesPath} must contain a JSON array.`);
 
 const slugById = new Map();
 const doneIds = new Set();
 for (const e of entries) {
   if (typeof e?.id !== "string" || typeof e?.slug !== "string" || typeof e?.status !== "string") {
-    fail(`${indexPath} contains an entry missing id/slug/status: ${JSON.stringify(e)}`);
+    fail(`${issuesPath} contains an entry missing id/slug/status: ${JSON.stringify(e)}`);
   }
   slugById.set(e.id, e.slug);
   if (e.status === "done") doneIds.add(e.id);

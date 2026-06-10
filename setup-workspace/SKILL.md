@@ -8,7 +8,7 @@ This skill is invoked when the user wants to set up a worktree for the next pend
 Hard rules — never violate:
 
 - Never `--force` anything. Surface errors verbatim and do not work around them.
-- Never edit `plans/<plan>/issues/index.json` from this skill.
+- Never edit `plans/<plan>/issues.json` from this skill.
 - Never push, rebase, reset, or amend.
 - Never run `git checkout` in the main working dir.
 - Never attach to a branch with commits ahead of `HEAD` without explicit user confirmation.

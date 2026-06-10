@@ -1,11 +1,11 @@
 ---
 name: prd-to-issues
-description: Break a PRD into independently-grabbable issues using tracer-bullet vertical slices, saved as markdown files in the plan's `issues/` folder along with an `index.json` tracker. Use when the user wants to convert a PRD to issues, create implementation tickets, or break down a PRD into work items.
+description: Break a PRD into independently-grabbable issues using tracer-bullet vertical slices, saved as markdown files in the plan's `issues/` folder along with an `issues.json` tracker. Use when the user wants to convert a PRD to issues, create implementation tickets, or break down a PRD into work items.
 ---
 
-This skill is invoked when the user wants to break a PRD into implementation issues. The PRD lives at `plans/<plan-name>/README.md`. You produce numbered issue files under `plans/<plan-name>/issues/` plus an `index.json` tracker.
+This skill is invoked when the user wants to break a PRD into implementation issues. The PRD lives at `plans/<plan-name>/PRD.md`. You produce numbered issue files under `plans/<plan-name>/issues/` plus an `issues.json` tracker at the plan root.
 
-1. Locate the PRD. The PRD lives at `plans/<plan-name>/README.md`. If the user hasn't specified the plan name and there is more than one folder inside `plans/`, ask them which one to use. If there is only one, use it.
+1. Locate the PRD. The PRD lives at `plans/<plan-name>/PRD.md`. If the user hasn't specified the plan name and there is more than one folder inside `plans/`, ask them which one to use. If there is only one, use it.
 
 2. Explore the codebase (optional). If you have not already explored the codebase, do so to understand the current state of the code.
 
@@ -37,7 +37,7 @@ This skill is invoked when the user wants to break a PRD into implementation iss
 
    Number issues with zero-padded three-digit prefixes starting from `001`. Derive a short kebab-case slug from the title. File naming: `plans/<plan-name>/issues/<NUMBER>-<slug>.md`. Create files in dependency order (blockers first) so you can reference real file numbers in the "Blocked by" field.
 
-   Do NOT edit `plans/<plan-name>/README.md`.
+   Do NOT edit `plans/<plan-name>/PRD.md`.
 
    <issue-template>
    # <NUMBER> — <Title>
@@ -74,9 +74,9 @@ This skill is invoked when the user wants to break a PRD into implementation iss
    - User story 7
    </issue-template>
 
-6. Generate `index.json`. After creating all issue files, generate `plans/<plan-name>/issues/index.json`. This file is the machine-readable index consumed by the pipeline.
+6. Generate `issues.json`. After creating all issue files, generate `plans/<plan-name>/issues.json` (at the plan root, next to `PRD.md` — not inside the `issues/` folder). This file is the machine-readable index consumed by the pipeline.
 
-   <index-json-schema>
+   <issues-json-schema>
    The file is a JSON array (2-space indented, trailing newline) of objects in numeric order. Each object has exactly these fields:
 
    | Field    | Type       | Description                                                    |
@@ -97,15 +97,15 @@ This skill is invoked when the user wants to break a PRD into implementation iss
      { "id": "004", "effort": 5, "slug": "ui-shell", "deps": ["002", "003"], "status": "pending" }
    ]
    ```
-   </index-json-schema>
+   </issues-json-schema>
 
-7. Generate `layers.json`. After writing `index.json`, run the bundled script to compute topological levels and write `plans/<plan-name>/issues/layers.json`:
+7. Generate `layers.json`. After writing `issues.json`, run the bundled script to compute topological levels and write `plans/<plan-name>/layers.json`:
 
    ```
-   node prd-to-issues/scripts/build-layers.mjs --index plans/<plan-name>/issues/index.json
+   node prd-to-issues/scripts/build-layers.mjs --issues plans/<plan-name>/issues.json
    ```
 
-   The script reads the index, groups issues into dependency layers (level 0 = no blockers, level N = all blockers are in levels < N), and writes `layers.json` next to `index.json`. The output looks like:
+   The script reads the tracker, groups issues into dependency layers (level 0 = no blockers, level N = all blockers are in levels < N), and writes `layers.json` next to `issues.json`. The output looks like:
 
    ```json
    [

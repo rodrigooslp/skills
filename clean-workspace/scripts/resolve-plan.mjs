@@ -2,16 +2,16 @@
 /**
  * Resolve a plan name from the `worktrees/` directory (subfolders are plan
  * names for this skill). Once chosen, validates that
- * `plans/<name>/issues/index.json` also exists.
+ * `plans/<name>/issues.json` also exists.
  *
  * Usage:
  *   node resolve-plan.mjs [--plan <name>]
  *
  * Behaviour:
- *   - If --plan is supplied, validate `plans/<name>/issues/index.json` and
+ *   - If --plan is supplied, validate `plans/<name>/issues.json` and
  *     `worktrees/<name>/` both exist, then echo the name.
  *   - Otherwise list directories directly inside `worktrees/`:
- *       - 1 match → echo it (after validating its index.json).
+ *       - 1 match → echo it (after validating its issues.json).
  *       - 0 match → exit 2 ("nothing to clean up").
  *       - many    → exit 1 with list of choices.
  *
@@ -33,8 +33,8 @@ function fail(msg, code = 1) {
 }
 
 function validate(name) {
-  const indexPath = join("plans", name, "issues", "index.json");
-  if (!existsSync(indexPath)) fail(`Plan "${name}" has no index.json at ${indexPath}`);
+  const issuesPath = join("plans", name, "issues.json");
+  if (!existsSync(issuesPath)) fail(`Plan "${name}" has no issues.json at ${issuesPath}`);
   const wtDir = join("worktrees", name);
   if (!existsSync(wtDir)) fail(`No worktree directory at ${wtDir} for plan "${name}".`, 2);
 }

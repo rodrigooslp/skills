@@ -6,7 +6,7 @@
  *   node resolve-issue.mjs --plan <name> [--id <id>]
  *
  * Behaviour:
- *   - With --id: look up that entry in `plans/<plan>/issues/index.json`.
+ *   - With --id: look up that entry in `plans/<plan>/issues.json`.
  *     A numeric id is zero-padded to 3 digits (`6` → `"006"`).
  *   - Without --id: walk entries in ascending id order, return the first
  *     entry whose `status` is not "done". Exit 2 if all are done.
@@ -57,20 +57,20 @@ function readJson(path) {
 
 if (!values.plan) fail("Missing required --plan <name>.");
 
-const indexPath = join("plans", values.plan, "issues", "index.json");
-if (!existsSync(indexPath)) fail(`Index file not found: ${indexPath}`);
+const issuesPath = join("plans", values.plan, "issues.json");
+if (!existsSync(issuesPath)) fail(`Index file not found: ${issuesPath}`);
 
 let entries;
 try {
-  entries = readJson(indexPath);
+  entries = readJson(issuesPath);
 } catch (err) {
-  fail(`Failed to parse ${indexPath} as JSON: ${err.message}`);
+  fail(`Failed to parse ${issuesPath} as JSON: ${err.message}`);
 }
-if (!Array.isArray(entries)) fail(`${indexPath} must contain a JSON array.`);
+if (!Array.isArray(entries)) fail(`${issuesPath} must contain a JSON array.`);
 
 for (const e of entries) {
   if (typeof e?.id !== "string" || typeof e?.slug !== "string" || typeof e?.status !== "string") {
-    fail(`${indexPath} contains an entry missing id/slug/status: ${JSON.stringify(e)}`);
+    fail(`${issuesPath} contains an entry missing id/slug/status: ${JSON.stringify(e)}`);
   }
 }
 
@@ -83,7 +83,7 @@ if (values.id) {
   target = byId.get(id);
   if (!target) {
     const available = entries.map((e) => e.id).join(", ");
-    fail(`No entry with id "${id}" in ${indexPath}. Available ids: ${available}`);
+    fail(`No entry with id "${id}" in ${issuesPath}. Available ids: ${available}`);
   }
 } else {
   const sorted = [...entries].sort((a, b) => a.id.localeCompare(b.id));

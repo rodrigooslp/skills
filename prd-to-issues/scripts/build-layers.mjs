@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * Compute topological layers from an issues index.json.
+ * Compute topological layers from an issues.json tracker.
  *
  * Usage:
- *   node build-layers.mjs --index <path-to-index.json>
+ *   node build-layers.mjs --issues <path-to-issues.json>
  *
  * Behaviour:
- *   - Reads the index.json at the given path.
+ *   - Reads the issues.json at the given path.
  *   - Groups issues into dependency levels: level 0 has no blockers,
  *     level N has all blockers resolved in levels < N.
- *   - Writes layers.json alongside index.json.
+ *   - Writes layers.json alongside issues.json.
  *   - Exits 1 if a dependency cycle is detected.
  *
  * Output: the resolved layers.json path on stdout. Errors on stderr.
@@ -20,7 +20,7 @@ import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
 
 const { values } = parseArgs({
-  options: { index: { type: "string" } },
+  options: { issues: { type: "string" } },
   strict: true,
 });
 
@@ -29,8 +29,8 @@ function fail(msg, code = 1) {
   process.exit(code);
 }
 
-if (!values.index) {
-  fail("Usage: node build-layers.mjs --index <path-to-index.json>");
+if (!values.issues) {
+  fail("Usage: node build-layers.mjs --issues <path-to-issues.json>");
 }
 
 /** @param {{ id: string; deps: string[] }[]} tasks */
@@ -68,10 +68,10 @@ function buildLayers(tasks) {
   return levels;
 }
 
-const tasks = JSON.parse(readFileSync(values.index, "utf8"));
+const tasks = JSON.parse(readFileSync(values.issues, "utf8"));
 const layers = buildLayers(tasks);
 
-const outPath = join(dirname(values.index), "layers.json");
+const outPath = join(dirname(values.issues), "layers.json");
 const body = layers
   .map((l) => `  { "level": ${l.level}, "issues": [${l.issues.map((i) => JSON.stringify(i)).join(", ")}] }`)
   .join(",\n");

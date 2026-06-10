@@ -1,6 +1,6 @@
 ---
 name: review-work
-description: Validate that the work done on a numbered issue meets every acceptance criterion in its issue file, then autonomously close any gaps. Spawns a read-only validator subagent that checks the diff against the spec, the working tree, and the `index.json` status; the main agent then implements missing criteria, commits leftover work, marks the issue done, and reports a brief list of what was changed. Use when the user asks to review work on a numbered issue, validate that an issue is done, check an implementation against its spec, or names an issue to verify — e.g. "review work on issue 007". Often invoked right after [`work-on-issue`](../work-on-issue/SKILL.md) completes.
+description: Validate that the work done on a numbered issue meets every acceptance criterion in its issue file, then autonomously close any gaps. Spawns a read-only validator subagent that checks the diff against the spec, the working tree, and the `issues.json` status; the main agent then implements missing criteria, commits leftover work, marks the issue done, and reports a brief list of what was changed. Use when the user asks to review work on a numbered issue, validate that an issue is done, check an implementation against its spec, or names an issue to verify — e.g. "review work on issue 007". Often invoked right after [`work-on-issue`](../work-on-issue/SKILL.md) completes.
 ---
 
 Verifies that work produced by [`work-on-issue`](../work-on-issue/SKILL.md) (for issues authored by [`prd-to-issues`](../prd-to-issues/SKILL.md)) fulfills its written acceptance criteria, **then autonomously closes any gaps the subagent identifies**. No confirmation before acting.
@@ -19,7 +19,7 @@ Verifies that work produced by [`work-on-issue`](../work-on-issue/SKILL.md) (for
 
    Capture: `git diff <base>...HEAD` (committed), `git diff` and `git diff --cached` (uncommitted), `git log --oneline <base>...HEAD`, `git status --porcelain=v1`. If both committed and uncommitted diffs are empty, stop — nothing to review.
 
-3. Read the issue file and the matching entry from `plans/<plan>/issues/index.json`. The issue's **Acceptance criteria** section is the authoritative checklist; **What to build**, **Blocked by**, and **User stories addressed** define scope.
+3. Read the issue file and the matching entry from `plans/<plan>/issues.json`. The issue's **Acceptance criteria** section is the authoritative checklist; **What to build**, **Blocked by**, and **User stories addressed** define scope.
 
 4. Spawn the validator subagent using the prompt template in [REFERENCE.md](REFERENCE.md), filling in the placeholders with the artifacts from Steps 1–3. The subagent is read-only — it produces only the structured report (sections A–E); the main agent acts on it in Step 5.
 

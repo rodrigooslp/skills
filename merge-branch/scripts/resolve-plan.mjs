@@ -6,7 +6,7 @@
  *   node resolve-plan.mjs [--plan <name>]
  *
  * Behaviour:
- *   - If --plan is supplied, validate `plans/<name>/issues/index.json` exists
+ *   - If --plan is supplied, validate `plans/<name>/issues.json` exists
  *     and echo the name back.
  *   - Otherwise list directories directly inside `plans/`:
  *       - 1 match  → echo it.
@@ -32,9 +32,9 @@ function fail(msg, code = 1) {
 }
 
 function validatePlan(name) {
-  const indexPath = join("plans", name, "issues", "index.json");
-  if (!existsSync(indexPath)) {
-    fail(`Plan "${name}" has no index.json at ${indexPath}`);
+  const issuesPath = join("plans", name, "issues.json");
+  if (!existsSync(issuesPath)) {
+    fail(`Plan "${name}" has no issues.json at ${issuesPath}`);
   }
 }
 

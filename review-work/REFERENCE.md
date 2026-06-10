@@ -35,9 +35,9 @@ For each smell, give `file:line` and the concrete fix.
 {full contents of the issue .md file}
 </issue-file>
 
-<index-entry path="plans/{plan}/issues/index.json">
-{the JSON object for this issue from index.json}
-</index-entry>
+<issues-entry path="plans/{plan}/issues.json">
+{the JSON object for this issue from issues.json}
+</issues-entry>
 
 <commits base="{base ref}">
 {git log --oneline output}

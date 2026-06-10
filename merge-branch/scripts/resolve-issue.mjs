@@ -7,7 +7,7 @@
  *
  * Behaviour:
  *   - Normalises numeric ids to a zero-padded 3-digit string (`6` → `"006"`).
- *   - Looks up the entry by id in `plans/<plan>/issues/index.json`.
+ *   - Looks up the entry by id in `plans/<plan>/issues.json`.
  *   - Errors with the list of available ids if no match is found.
  *
  * Output: JSON object on stdout:
@@ -44,8 +44,8 @@ if (!values.id) fail("Missing required --id <id>.");
 let id = values.id;
 if (/^\d+$/.test(id)) id = id.padStart(3, "0");
 
-const indexPath = join("plans", values.plan, "issues", "index.json");
-if (!existsSync(indexPath)) fail(`Index file not found: ${indexPath}`);
+const issuesPath = join("plans", values.plan, "issues.json");
+if (!existsSync(issuesPath)) fail(`Index file not found: ${issuesPath}`);
 
 function readJson(path) {
   // Strip a UTF-8 BOM if present — PowerShell `Out-File -Encoding utf8` and a
@@ -55,16 +55,16 @@ function readJson(path) {
 
 let entries;
 try {
-  entries = readJson(indexPath);
+  entries = readJson(issuesPath);
 } catch (err) {
-  fail(`Failed to parse ${indexPath} as JSON: ${err.message}`);
+  fail(`Failed to parse ${issuesPath} as JSON: ${err.message}`);
 }
-if (!Array.isArray(entries)) fail(`${indexPath} must contain a JSON array.`);
+if (!Array.isArray(entries)) fail(`${issuesPath} must contain a JSON array.`);
 
 const entry = entries.find((e) => e?.id === id);
 if (!entry) {
   const available = entries.map((e) => e?.id).filter(Boolean).join(", ");
-  fail(`No entry with id "${id}" in ${indexPath}. Available ids: ${available}`);
+  fail(`No entry with id "${id}" in ${issuesPath}. Available ids: ${available}`);
 }
 
 if (typeof entry.slug !== "string") fail(`Entry "${id}" has no string slug.`);

@@ -12,7 +12,7 @@ Hard rules — never violate:
 - Never run `git merge --abort` without explicit user approval — conflicts are resolved in place when possible (see Step 4).
 - Never force-delete (`git branch -D`) or `--force` a worktree removal without explicit user approval.
 - Never delete the branch before removing its worktree — `git branch -d` refuses a branch that is checked out elsewhere.
-- Never take a raw branch name from the prompt — always resolve it from `plans/<plan>/issues/index.json` via the helper script.
+- Never take a raw branch name from the prompt — always resolve it from `plans/<plan>/issues.json` via the helper script.
 - When resolving conflicts autonomously, never guess at semantic intent — if you cannot tell which side is correct from surrounding context, stop and surface the specific conflict to the user.
 
 1. Resolve the plan and issue.
