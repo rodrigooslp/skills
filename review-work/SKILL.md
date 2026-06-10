@@ -5,7 +5,7 @@ description: Validate that the work done on a numbered issue meets every accepta
 
 Verifies that work produced by [`work-on-issue`](../work-on-issue/SKILL.md) (for issues authored by [`prd-to-issues`](../prd-to-issues/SKILL.md)) fulfills its written acceptance criteria, **then autonomously closes any gaps the subagent identifies**. No confirmation before acting.
 
-`<SKILL_DIR>` is the directory containing this `SKILL.md`. Resolver and tracker scripts live in `<SKILL_DIR>/scripts/` (the same canonical scripts `work-on-issue` uses, kept in sync via `.build/`).
+`<SKILL_DIR>` is the directory containing this `SKILL.md`. Resolver and tracker scripts live under `<SKILL_DIR>/scripts/`.
 
 1. Resolve plan and issue.
 
