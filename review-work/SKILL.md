@@ -5,13 +5,13 @@ description: Validate that the work done on a numbered issue meets every accepta
 
 Verifies that work produced by [`work-on-issue`](../work-on-issue/SKILL.md) (for issues authored by [`prd-to-issues`](../prd-to-issues/SKILL.md)) fulfills its written acceptance criteria, **then autonomously closes any gaps the subagent identifies**. No confirmation before acting.
 
-`<SKILL_DIR>` is the directory containing this `SKILL.md`. Resolver and tracker scripts are reused from the sibling `work-on-issue` skill at `<SKILL_DIR>/../work-on-issue/scripts/`.
+`<SKILL_DIR>` is the directory containing this `SKILL.md`. Resolver and tracker scripts live in `<SKILL_DIR>/scripts/` (the same canonical scripts `work-on-issue` uses, kept in sync via `.build/`).
 
 1. Resolve plan and issue.
 
-   Run `node <SKILL_DIR>/../work-on-issue/scripts/resolve-plan.mjs [--plan <name>]`. Stdout = plan name; exit 2 with a list = ask the user which and re-run with `--plan`.
+   Run `node <SKILL_DIR>/scripts/resolve-plan.mjs [--plan <name>]`. Stdout = plan name; exit 2 with a list = ask the user which and re-run with `--plan`.
 
-   Then run `node <SKILL_DIR>/../work-on-issue/scripts/resolve-issue.mjs --plan <plan> --id <id>`. **Always pass `--id`** — review needs a specific target, and the script's default ("first non-done entry") is the opposite of what we want. If the user didn't name an issue, ask which one to review. Stdout JSON: `{ id, slug, status, file, fileExists, ... }`. Stop if `fileExists` is false.
+   Then run `node <SKILL_DIR>/scripts/resolve-issue.mjs --plan <plan> --id <id>`. **Always pass `--id`** — review needs a specific target, and the script's default ("first non-done entry") is the opposite of what we want. If the user didn't name an issue, ask which one to review. Stdout JSON: `{ id, slug, status, file, fileExists, ... }`. Stop if `fileExists` is false.
 
 2. Identify the changes to review.
 
@@ -29,7 +29,7 @@ Verifies that work produced by [`work-on-issue`](../work-on-issue/SKILL.md) (for
    2. **Fix actionable quality smells** the subagent listed under section E (dead code, debug prints, missing tests for criteria, self-referential `// Issue NNN:` markers).
    3. **Run quality gates** if any code changed: `<pm> run test`, `<pm> run typecheck`, `<pm> run lint`, `<pm> run build` (only those present in `package.json`). Detect the package manager from the lock file (`pnpm-lock.yaml`→pnpm, `yarn.lock`→yarn, `package-lock.json`→npm, `bun.lockb`→bun; ask if none). Fix failures in scope and re-run from the failing gate.
    4. **Commit anything uncommitted.** If `git status --porcelain=v1` is non-empty (leftover work flagged in section B, or changes you just made), invoke `commit-changes` to stage and commit. Working tree must be empty before the next step.
-   5. **Mark the issue done** if section C said "Not marked done" *and* all criteria are now Met *and* the working tree is clean. Run `node <SKILL_DIR>/../work-on-issue/scripts/mark-done.mjs --plan <plan> --id <id>`. Surface non-zero exit and stop.
+   5. **Mark the issue done** if section C said "Not marked done" *and* all criteria are now Met *and* the working tree is clean. Run `node <SKILL_DIR>/scripts/mark-done.mjs --plan <plan> --id <id>`. Surface non-zero exit and stop.
 
    Track each action you take — you'll list them in Step 6. **Scope violations (section D) are reported only**, never acted on.
 

@@ -3,11 +3,11 @@ name: address-tech-debt
 description: Wrap up work on a PRD by actually fixing the tech debt called out in `progress.md`. Reads every bullet, distinguishes real deferred work from informational notes, autonomously implements the fixes that are obvious, asks the user only when an option choice has real consequences, and reports what was changed. Use when the user asks to wrap up a plan, address the tech debt from a PRD, clean up loose ends from `progress.md`, or finalize a plan before deleting its folder — e.g. "address the tech debt from the dashboard-refactor plan".
 ---
 
-This skill runs **after** every issue in a plan is merged and **before** the plan folder is deleted. The goal is to **fix** the tech debt left behind — not to archive it. Reuses the plan resolver from `work-on-issue/scripts/`. `<SKILL_DIR>` is the directory containing this `SKILL.md`.
+This skill runs **after** every issue in a plan is merged and **before** the plan folder is deleted. The goal is to **fix** the tech debt left behind — not to archive it. Bundles the plan resolver under `<SKILL_DIR>/scripts/` (the canonical script shared with `work-on-issue`, kept in sync via `.build/`). `<SKILL_DIR>` is the directory containing this `SKILL.md`.
 
 1. Resolve plan and locate the progress doc.
 
-   Run `node <SKILL_DIR>/../work-on-issue/scripts/resolve-plan.mjs [--plan <name>]`. Stdout = plan name; exit 2 with a list = ask the user which and re-run with `--plan`.
+   Run `node <SKILL_DIR>/scripts/resolve-plan.mjs [--plan <name>]`. Stdout = plan name; exit 2 with a list = ask the user which and re-run with `--plan`.
 
    Read `plans/<plan>/progress.md`. If the file does not exist, stop — there is nothing to address. Also read `plans/<plan>/PRD.md` for spec context only.
 

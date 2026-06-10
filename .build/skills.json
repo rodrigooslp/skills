@@ -1,0 +1,39 @@
+{
+  "$comment": "Single source of truth for which bundled scripts each skill ships. Canonical scripts live in .build/scripts/. Run `node .build/sync.mjs` after editing this file or any canonical script to regenerate every skill's scripts/ folder. An entry is either a string (copied to <skill>/scripts/<same-name>) or { \"src\": \"...\", \"dest\": \"...\" } when the skill expects a different local filename (used to disambiguate same-named variants).",
+  "skills": {
+    "prd-to-issues": [
+      "build-layers.mjs"
+    ],
+    "setup-workspace": [
+      "resolve-plan.mjs",
+      "pick-next-issue.mjs",
+      "copy-env-files.mjs"
+    ],
+    "clean-workspace": [
+      { "src": "resolve-plan-worktrees.mjs", "dest": "resolve-plan.mjs" },
+      "list-cleanup-candidates.mjs"
+    ],
+    "merge-branch": [
+      "resolve-plan.mjs",
+      { "src": "resolve-issue-worktree.mjs", "dest": "resolve-issue.mjs" }
+    ],
+    "work-on-issue": [
+      "resolve-plan.mjs",
+      "resolve-issue.mjs",
+      "mark-done.mjs"
+    ],
+    "review-work": [
+      "resolve-plan.mjs",
+      "resolve-issue.mjs",
+      "mark-done.mjs"
+    ],
+    "address-tech-debt": [
+      "resolve-plan.mjs"
+    ],
+    "archive-plan": [
+      "resolve-plan.mjs",
+      "check-all-done.mjs",
+      "archive-plan.mjs"
+    ]
+  }
+}

@@ -95,6 +95,8 @@ Each skill is a single `SKILL.md` file with frontmatter describing when and how 
 
 Some skills bundle helper scripts under `scripts/` (plan/issue resolution, JSON parsing, env-file copying) and reference them via `<SKILL_DIR>/scripts/…`. Keep each skill's folder intact when copying.
 
+Several skills share the same helper scripts. The canonical copy of each lives in [`.build/scripts/`](.build/), and each skill's `scripts/` folder is **generated** from it — see [`.build/README.md`](.build/README.md). After editing a shared script or adding a skill that needs one, run `node .build/sync.mjs` to regenerate the per-skill copies (and `node .build/sync.mjs --check` to verify they're in sync). Don't edit a skill's `scripts/` files by hand.
+
 A few skills include extended docs alongside `SKILL.md`:
 
 - [commit-changes/REFERENCE.md](commit-changes/REFERENCE.md) — the full Conventional Commits 1.0.0 grammar.
