@@ -71,6 +71,8 @@ This reverts commit 1234567890abcdef.
 fix(auth): refresh session token when claims expire
 
 Closes: #482
-Co-authored-by: A. Developer <a.dev@example.com>
-Reviewed-by: B. Reviewer
+Refs: #477
+BREAKING CHANGE: sessions issued before v2.3 are invalidated on upgrade
 ```
+
+> Note the absence of attribution footers. **Never** write `Co-authored-by`, `Signed-off-by`, `Assisted-by`, `Generated-by`, or any similar trailer — not for Claude, not for an AI or tool, and not for a human collaborator either. The commit's author is the person running it and nobody else. See the "NO ATTRIBUTION, NO CO-AUTHORS" section in [SKILL.md](SKILL.md).

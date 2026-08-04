@@ -68,6 +68,7 @@ Required. Comes after `: ` (colon + space). Rules:
 - Separated from the body (or description, if no body) by **one blank line**.
 - One footer per line. Format: `Token: value` or `Token #value`.
 - Token rules:
-  - Use `-` in place of spaces, e.g. `Reviewed-by:`, `Co-authored-by:`, `Acked-by:`, `Refs:`, `Closes:`.
+  - Use `-` in place of spaces, e.g. `Refs:`, `Closes:`, `Fixes:`, `See-also:`.
   - **Exception:** `BREAKING CHANGE` (uppercase, with a space) is allowed. `BREAKING-CHANGE` is also valid and synonymous.
 - Multi-line footer values are allowed; parsing stops at the next valid footer token.
+- **Attribution footers are banned by this skill.** The spec permits `Co-authored-by:`, `Signed-off-by:`, `Reviewed-by:`, `Acked-by:` and the like, but you must never write one — not for Claude or any AI, and not for a human either. The author of the commit is the person running it, full stop. See the "NO ATTRIBUTION, NO CO-AUTHORS" section in [SKILL.md](SKILL.md).
