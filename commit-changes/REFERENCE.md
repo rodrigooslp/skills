@@ -5,7 +5,7 @@ Full spec rules for drafting a commit message. The workflow lives in [SKILL.md](
 ## Format
 
 ```
-<type>[optional scope][!]: <description>
+<type>[optional scope]: <description>
 
 [optional body]
 
@@ -36,16 +36,6 @@ If multiple types apply, pick the one that describes the **primary** intent. Do 
 
 A single lowercase noun in parentheses identifying the section of the codebase touched, e.g. `feat(parser):`. Omit if the change is broad or cross-cutting.
 
-## Breaking change marker
-
-If the commit introduces a breaking change, **either**:
-
-- Add `!` immediately before the colon: `feat(api)!: drop legacy auth`, **or**
-- Add a `BREAKING CHANGE: <description>` footer, **or**
-- Both (preferred when the description alone doesn't capture the impact).
-
-When `!` is used, `BREAKING CHANGE:` in the footer is optional.
-
 ## Description
 
 Required. Comes after `: ` (colon + space). Rules:
@@ -67,8 +57,6 @@ Required. Comes after `: ` (colon + space). Rules:
 
 - Separated from the body (or description, if no body) by **one blank line**.
 - One footer per line. Format: `Token: value` or `Token #value`.
-- Token rules:
-  - Use `-` in place of spaces, e.g. `Refs:`, `Closes:`, `Fixes:`, `See-also:`.
-  - **Exception:** `BREAKING CHANGE` (uppercase, with a space) is allowed. `BREAKING-CHANGE` is also valid and synonymous.
+- Token rules: use `-` in place of spaces, e.g. `Refs:`, `Closes:`, `Fixes:`, `See-also:`.
 - Multi-line footer values are allowed; parsing stops at the next valid footer token.
-- **Attribution footers are banned by this skill.** The spec permits `Co-authored-by:`, `Signed-off-by:`, `Reviewed-by:`, `Acked-by:` and the like, but you must never write one — not for Claude or any AI, and not for a human either. The author of the commit is the person running it, full stop. See the "NO ATTRIBUTION, NO CO-AUTHORS" section in [SKILL.md](SKILL.md).
+- **Attribution footers are banned by this skill**, though the spec itself permits `Co-authored-by:`, `Signed-off-by:`, `Reviewed-by:`, `Acked-by:`, and the like. See the "NO ATTRIBUTION, NO CO-AUTHORS" section in [SKILL.md](SKILL.md) — it wins over the spec.
